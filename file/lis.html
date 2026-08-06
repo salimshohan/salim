@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BookVault | Comprehensive Catalog</title>
+    <title>BookVault | Comprehensive Library Catalog</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -27,7 +27,7 @@
         }
 
         .app-container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 0 20px;
         }
@@ -155,6 +155,39 @@
             font-size: 0.75rem;
         }
 
+        /* Extended Metadata Details */
+        details {
+            background: var(--bg-color);
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-top: 15px;
+            font-size: 0.85rem;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--primary-color);
+            outline: none;
+        }
+
+        .ext-meta-section {
+            margin-top: 10px;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 10px;
+        }
+
+        .ext-meta-section h5 {
+            margin: 0 0 5px 0;
+            color: var(--text-main);
+        }
+
+        .ext-meta-section p {
+            margin: 2px 0;
+            color: var(--text-muted);
+        }
+
         /* Grid */
         .section-header {
             display: flex;
@@ -173,7 +206,7 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
             gap: 20px;
             padding-bottom: 50px;
         }
@@ -185,12 +218,6 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            transition: transform 0.2s ease;
-        }
-
-        .book-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary-color);
         }
 
         .book-header {
@@ -208,7 +235,6 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Top Navigation -->
         <nav class="navbar">
             <div class="brand">📚 BookVault</div>
             <button id="syncBtn" class="btn-sync">
@@ -218,15 +244,13 @@
         </nav>
 
         <main class="dashboard">
-            <!-- Add New Book Section -->
             <section class="action-panel card">
                 <h3>Add to Vault</h3>
                 <div class="input-group">
-                    <input type="text" id="isbnInput" placeholder="Enter ISBN (e.g., 9780131103627 or 9780439708180)" autocomplete="off">
+                    <input type="text" id="isbnInput" placeholder="Enter ISBN (e.g., 9780131103627)" autocomplete="off">
                     <button id="fetchBtn" class="btn-primary">Search</button>
                 </div>
 
-                <!-- Inline Preview (Hidden by default) -->
                 <div id="previewSection" class="preview-area" style="display: none;">
                     <div class="preview-content">
                         <img id="previewCover" src="" alt="Book Cover">
@@ -240,15 +264,12 @@
                                 <span id="previewPages" class="text-sm"></span>
                                 <span id="previewIsbn" class="text-sm"></span>
                             </div>
-                            
-                            <div id="previewSubjects" class="subjects-container"></div>
                         </div>
                     </div>
-                    <button id="saveBtn" class="btn-success">Confirm & Save</button>
+                    <button id="saveBtn" class="btn-success">Confirm & Save All Metadata</button>
                 </div>
             </section>
 
-            <!-- Catalog Grid -->
             <section class="catalog-section">
                 <div class="section-header">
                     <h3>My Collection</h3>
@@ -275,15 +296,18 @@
         const bookCount = document.getElementById('bookCount');
         const syncBtn = document.getElementById('syncBtn');
 
-        // Helper: Limit subjects array
-        const getSubjectsHtml = (subjects) => {
-            if (!subjects || subjects.length === 0) return '';
-            return subjects.slice(0, 4).map(sub => `<span class="subject-tag">${sub.name}</span>`).join('');
+        // Helper functions for deep data extraction
+        const getTagListHtml = (arr) => {
+            if (!arr || arr.length === 0) return '<span class="text-muted">N/A</span>';
+            return arr.map(item => `<span class="subject-tag">${item.name}</span>`).join('');
         };
 
-        // 1. Fetch comprehensive metadata
+        const extractField = (field, fallback = "N/A") => field ? field : fallback;
+        const extractArray = (arr, prop = 'name') => arr && arr.length > 0 ? arr.map(item => item[prop]).join(', ') : "N/A";
+
+        // 1. Fetch ALL metadata
         fetchBtn.addEventListener('click', async () => {
-            const isbn = isbnInput.value.trim().replace(/-/g, ''); // Remove dashes if any
+            const isbn = isbnInput.value.trim().replace(/-/g, ''); 
             if (!isbn) return;
 
             try {
@@ -295,20 +319,42 @@
                 if (data[bookKey]) {
                     const bookInfo = data[bookKey];
                     
-                    // Extract all available information with fallbacks
+                    // Extracting absolutely everything available in the 'data' jscmd
                     currentBookPreview = {
                         id: Date.now().toString(),
                         isbn: isbn,
-                        title: bookInfo.title || "Unknown Title",
+                        
+                        // Core
+                        title: extractField(bookInfo.title, "Unknown Title"),
                         subtitle: bookInfo.subtitle ? `: ${bookInfo.subtitle}` : "",
-                        author: bookInfo.authors ? bookInfo.authors.map(a => a.name).join(', ') : "Unknown Author",
-                        publisher: bookInfo.publishers ? bookInfo.publishers.map(p => p.name).join(', ') : "Unknown Publisher",
-                        publishDate: bookInfo.publish_date || "Unknown Date",
-                        pages: bookInfo.number_of_pages ? `${bookInfo.number_of_pages} pages` : "Pages unknown",
-                        subjectsHtml: getSubjectsHtml(bookInfo.subjects),
-                        url: bookInfo.url || "#",
-                        // Fallback image generated via Placeholder API if no cover is found
-                        cover: bookInfo.cover ? bookInfo.cover.medium : "https://via.placeholder.com/150x225/1e293b/94a3b8?text=No+Cover+Available"
+                        author: extractArray(bookInfo.authors),
+                        publisher: extractArray(bookInfo.publishers),
+                        publishDate: extractField(bookInfo.publish_date),
+                        pages: bookInfo.number_of_pages ? `${bookInfo.number_of_pages} pages` : (bookInfo.pagination || "Pages unknown"),
+                        weight: extractField(bookInfo.weight),
+                        url: extractField(bookInfo.url, "#"),
+                        cover: bookInfo.cover ? bookInfo.cover.medium : "https://via.placeholder.com/150x225/1e293b/94a3b8?text=No+Cover+Available",
+                        
+                        // Classifications (Crucial for Library Management)
+                        dewey: bookInfo.classifications?.dewey_decimal_class?.join(', ') || "N/A",
+                        lc: bookInfo.classifications?.lc_classifications?.join(', ') || "N/A",
+                        
+                        // Identifiers
+                        isbn10: bookInfo.identifiers?.isbn_10?.join(', ') || "N/A",
+                        isbn13: bookInfo.identifiers?.isbn_13?.join(', ') || "N/A",
+                        goodreads: bookInfo.identifiers?.goodreads?.join(', ') || "N/A",
+                        librarything: bookInfo.identifiers?.librarything?.join(', ') || "N/A",
+                        openlibraryId: bookInfo.identifiers?.openlibrary?.join(', ') || "N/A",
+
+                        // Subjects & Taxonomy
+                        subjectsHtml: getTagListHtml(bookInfo.subjects),
+                        subjectPlacesHtml: getTagListHtml(bookInfo.subject_places),
+                        subjectPeopleHtml: getTagListHtml(bookInfo.subject_people),
+                        subjectTimesHtml: getTagListHtml(bookInfo.subject_times),
+
+                        // Text Content
+                        notes: extractField(bookInfo.notes, "No notes available."),
+                        excerpt: bookInfo.excerpts && bookInfo.excerpts.length > 0 ? bookInfo.excerpts[0].text : "No excerpt available."
                     };
 
                     displayPreview();
@@ -325,18 +371,15 @@
             }
         });
 
-        // 2. Display the inline preview with extra data
+        // 2. Display the preview
         function displayPreview() {
             document.getElementById('previewCover').src = currentBookPreview.cover;
             document.getElementById('previewTitle').innerText = currentBookPreview.title + currentBookPreview.subtitle;
             document.getElementById('previewAuthor').innerHTML = `<strong>Author:</strong> ${currentBookPreview.author}`;
-            
             document.getElementById('previewPublisher').innerHTML = `🏢 ${currentBookPreview.publisher}`;
             document.getElementById('previewDate').innerHTML = `📅 ${currentBookPreview.publishDate}`;
             document.getElementById('previewPages').innerHTML = `📑 ${currentBookPreview.pages}`;
-            document.getElementById('previewIsbn').innerHTML = `🏷️ ISBN: ${currentBookPreview.isbn}`;
-            
-            document.getElementById('previewSubjects').innerHTML = currentBookPreview.subjectsHtml;
+            document.getElementById('previewIsbn').innerHTML = `🏷️ Searched ISBN: ${currentBookPreview.isbn}`;
             
             previewSection.style.display = 'block';
         }
@@ -353,7 +396,7 @@
                 const exists = catalog.find(b => b.isbn === currentBookPreview.isbn);
                 if (exists) {
                     saveBtn.innerText = "Already in Vault!";
-                    setTimeout(() => saveBtn.innerText = "Confirm & Save", 2000);
+                    setTimeout(() => saveBtn.innerText = "Confirm & Save All Metadata", 2000);
                     return;
                 }
 
@@ -365,7 +408,7 @@
             }
         });
 
-        // 4. Render the saved catalog with extra data
+        // 4. Render the saved catalog with dropdown for extended metadata
         function renderCatalog() {
             catalogGrid.innerHTML = '';
             bookCount.innerText = `${catalog.length} Book${catalog.length !== 1 ? 's' : ''}`;
@@ -381,12 +424,51 @@
                             <p class="text-muted" style="margin-bottom: 8px;">${book.author}</p>
                             <p class="text-sm">🏢 ${book.publisher}</p>
                             <p class="text-sm">📅 ${book.publishDate} | 📑 ${book.pages}</p>
-                            <div class="subjects-container" style="margin-bottom: 8px;">
-                                ${book.subjectsHtml}
-                            </div>
                             ${book.url !== "#" ? `<a href="${book.url}" target="_blank">View on Open Library ↗</a>` : ''}
                         </div>
                     </div>
+                    
+                    <details>
+                        <summary>View All Metadata & Classifications</summary>
+                        
+                        <div class="ext-meta-section">
+                            <h5>Library Classifications</h5>
+                            <p><strong>Dewey Decimal:</strong> ${book.dewey}</p>
+                            <p><strong>Library of Congress (LC):</strong> ${book.lc}</p>
+                        </div>
+
+                        <div class="ext-meta-section">
+                            <h5>Identifiers</h5>
+                            <p><strong>ISBN-10:</strong> ${book.isbn10}</p>
+                            <p><strong>ISBN-13:</strong> ${book.isbn13}</p>
+                            <p><strong>Goodreads ID:</strong> ${book.goodreads}</p>
+                            <p><strong>LibraryThing ID:</strong> ${book.librarything}</p>
+                            <p><strong>OpenLibrary ID:</strong> ${book.openlibraryId}</p>
+                        </div>
+
+                        <div class="ext-meta-section">
+                            <h5>Taxonomy & Subjects</h5>
+                            <p><strong>General Topics:</strong></p>
+                            <div class="subjects-container">${book.subjectsHtml}</div>
+                            
+                            <p style="margin-top:8px;"><strong>People:</strong></p>
+                            <div class="subjects-container">${book.subjectPeopleHtml}</div>
+                            
+                            <p style="margin-top:8px;"><strong>Places:</strong></p>
+                            <div class="subjects-container">${book.subjectPlacesHtml}</div>
+                            
+                            <p style="margin-top:8px;"><strong>Time Periods:</strong></p>
+                            <div class="subjects-container">${book.subjectTimesHtml}</div>
+                        </div>
+
+                        <div class="ext-meta-section">
+                            <h5>Notes & Excerpts</h5>
+                            <p><strong>Excerpt:</strong> ${book.excerpt}</p>
+                            <p style="margin-top:8px;"><strong>Notes:</strong> ${book.notes}</p>
+                            <p style="margin-top:8px;"><strong>Physical Weight:</strong> ${book.weight}</p>
+                        </div>
+                    </details>
+
                     <div class="card-actions">
                         <button onclick="deleteBook('${book.id}')" class="btn-danger">Delete</button>
                     </div>
@@ -402,7 +484,7 @@
             renderCatalog();
         }
 
-        // 6. Sync Logic (Attach your Drive API logic here)
+        // 6. Sync Logic
         syncBtn.addEventListener('click', () => {
             syncBtn.innerHTML = "Syncing...";
             // Insert your Google Drive appDataFolder sync logic here
