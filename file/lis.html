@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BookVault | Personal Catalog</title>
+    <title>BookVault | Comprehensive Catalog</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -67,13 +67,9 @@
             padding: 8px 16px;
         }
 
-        .btn-sync:hover {
-            background-color: rgba(56, 189, 248, 0.1);
-        }
-
+        .btn-sync:hover { background-color: rgba(56, 189, 248, 0.1); }
         .btn-primary { background-color: var(--primary-color); color: #fff; padding: 12px 24px; }
         .btn-primary:hover { background-color: var(--primary-hover); }
-
         .btn-success { background-color: var(--success-color); color: #fff; padding: 10px 20px; width: 100%; margin-top: 15px;}
         .btn-danger { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 6px 12px; font-size: 0.85rem;}
         .btn-danger:hover { background-color: rgba(239, 68, 68, 0.1); }
@@ -116,16 +112,48 @@
         .preview-content {
             display: flex;
             gap: 20px;
-            align-items: center;
+            align-items: flex-start;
         }
 
-        .preview-content img {
-            height: 90px;
+        .preview-content img, .book-header img {
+            width: 100px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 6px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .preview-details h4 { margin: 0 0 5px 0; font-size: 1.2rem; color: var(--primary-color); }
+        .text-muted { color: var(--text-muted); font-size: 0.95rem; margin: 4px 0; }
+        .text-sm { color: var(--text-muted); font-size: 0.85rem; margin: 2px 0; }
+        
+        .meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+            background: var(--bg-color);
+            padding: 10px;
             border-radius: 6px;
         }
 
-        .text-muted { color: var(--text-muted); font-size: 0.9rem; margin: 4px 0; }
-        .text-sm { color: var(--text-muted); font-size: 0.8rem; }
+        /* Subjects Tags */
+        .subjects-container {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .subject-tag {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
 
         /* Grid */
         .section-header {
@@ -145,7 +173,7 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 20px;
             padding-bottom: 50px;
         }
@@ -171,16 +199,11 @@
             margin-bottom: 15px;
         }
 
-        .book-header img {
-            height: 80px;
-            width: 55px;
-            object-fit: cover;
-            border-radius: 4px;
-            background-color: var(--bg-color);
-        }
-
-        .book-info h4 { margin: 0 0 5px 0; font-size: 1.1rem; }
-        .card-actions { margin-top: auto; display: flex; justify-content: flex-end; }
+        .book-info h4 { margin: 0 0 5px 0; font-size: 1.1rem; color: var(--text-main); }
+        .book-info a { color: var(--primary-color); text-decoration: none; font-size: 0.85rem; }
+        .book-info a:hover { text-decoration: underline; }
+        
+        .card-actions { margin-top: auto; display: flex; justify-content: flex-end; padding-top: 15px; border-top: 1px solid var(--border-color); }
     </style>
 </head>
 <body>
@@ -195,11 +218,11 @@
         </nav>
 
         <main class="dashboard">
-            <!-- Add New Book Section (Vault Style) -->
+            <!-- Add New Book Section -->
             <section class="action-panel card">
                 <h3>Add to Vault</h3>
                 <div class="input-group">
-                    <input type="text" id="isbnInput" placeholder="Enter ISBN (e.g., 9780131103627)" autocomplete="off">
+                    <input type="text" id="isbnInput" placeholder="Enter ISBN (e.g., 9780131103627 or 9780439708180)" autocomplete="off">
                     <button id="fetchBtn" class="btn-primary">Search</button>
                 </div>
 
@@ -207,10 +230,18 @@
                 <div id="previewSection" class="preview-area" style="display: none;">
                     <div class="preview-content">
                         <img id="previewCover" src="" alt="Book Cover">
-                        <div class="preview-details">
+                        <div class="preview-details" style="flex: 1;">
                             <h4 id="previewTitle"></h4>
                             <p id="previewAuthor" class="text-muted"></p>
-                            <p id="previewIsbn" class="text-sm"></p>
+                            
+                            <div class="meta-grid">
+                                <span id="previewPublisher" class="text-sm"></span>
+                                <span id="previewDate" class="text-sm"></span>
+                                <span id="previewPages" class="text-sm"></span>
+                                <span id="previewIsbn" class="text-sm"></span>
+                            </div>
+                            
+                            <div id="previewSubjects" class="subjects-container"></div>
                         </div>
                     </div>
                     <button id="saveBtn" class="btn-success">Confirm & Save</button>
@@ -244,9 +275,15 @@
         const bookCount = document.getElementById('bookCount');
         const syncBtn = document.getElementById('syncBtn');
 
-        // 1. Fetch metadata
+        // Helper: Limit subjects array
+        const getSubjectsHtml = (subjects) => {
+            if (!subjects || subjects.length === 0) return '';
+            return subjects.slice(0, 4).map(sub => `<span class="subject-tag">${sub.name}</span>`).join('');
+        };
+
+        // 1. Fetch comprehensive metadata
         fetchBtn.addEventListener('click', async () => {
-            const isbn = isbnInput.value.trim();
+            const isbn = isbnInput.value.trim().replace(/-/g, ''); // Remove dashes if any
             if (!isbn) return;
 
             try {
@@ -258,12 +295,20 @@
                 if (data[bookKey]) {
                     const bookInfo = data[bookKey];
                     
+                    // Extract all available information with fallbacks
                     currentBookPreview = {
                         id: Date.now().toString(),
                         isbn: isbn,
                         title: bookInfo.title || "Unknown Title",
-                        author: bookInfo.authors ? bookInfo.authors[0].name : "Unknown Author",
-                        cover: bookInfo.cover ? bookInfo.cover.medium : "https://via.placeholder.com/100x150/1e293b/94a3b8?text=No+Cover"
+                        subtitle: bookInfo.subtitle ? `: ${bookInfo.subtitle}` : "",
+                        author: bookInfo.authors ? bookInfo.authors.map(a => a.name).join(', ') : "Unknown Author",
+                        publisher: bookInfo.publishers ? bookInfo.publishers.map(p => p.name).join(', ') : "Unknown Publisher",
+                        publishDate: bookInfo.publish_date || "Unknown Date",
+                        pages: bookInfo.number_of_pages ? `${bookInfo.number_of_pages} pages` : "Pages unknown",
+                        subjectsHtml: getSubjectsHtml(bookInfo.subjects),
+                        url: bookInfo.url || "#",
+                        // Fallback image generated via Placeholder API if no cover is found
+                        cover: bookInfo.cover ? bookInfo.cover.medium : "https://via.placeholder.com/150x225/1e293b/94a3b8?text=No+Cover+Available"
                     };
 
                     displayPreview();
@@ -274,17 +319,24 @@
                 }
             } catch (error) {
                 console.error("API Error:", error);
+                alert("Network error occurred.");
             } finally {
                 fetchBtn.innerText = "Search";
             }
         });
 
-        // 2. Display the inline preview
+        // 2. Display the inline preview with extra data
         function displayPreview() {
             document.getElementById('previewCover').src = currentBookPreview.cover;
-            document.getElementById('previewTitle').innerText = currentBookPreview.title;
-            document.getElementById('previewAuthor').innerText = currentBookPreview.author;
-            document.getElementById('previewIsbn').innerText = `ISBN: ${currentBookPreview.isbn}`;
+            document.getElementById('previewTitle').innerText = currentBookPreview.title + currentBookPreview.subtitle;
+            document.getElementById('previewAuthor').innerHTML = `<strong>Author:</strong> ${currentBookPreview.author}`;
+            
+            document.getElementById('previewPublisher').innerHTML = `🏢 ${currentBookPreview.publisher}`;
+            document.getElementById('previewDate').innerHTML = `📅 ${currentBookPreview.publishDate}`;
+            document.getElementById('previewPages').innerHTML = `📑 ${currentBookPreview.pages}`;
+            document.getElementById('previewIsbn').innerHTML = `🏷️ ISBN: ${currentBookPreview.isbn}`;
+            
+            document.getElementById('previewSubjects').innerHTML = currentBookPreview.subjectsHtml;
             
             previewSection.style.display = 'block';
         }
@@ -313,7 +365,7 @@
             }
         });
 
-        // 4. Render the saved catalog
+        // 4. Render the saved catalog with extra data
         function renderCatalog() {
             catalogGrid.innerHTML = '';
             bookCount.innerText = `${catalog.length} Book${catalog.length !== 1 ? 's' : ''}`;
@@ -326,8 +378,13 @@
                         <img src="${book.cover}" alt="Cover">
                         <div class="book-info">
                             <h4>${book.title}</h4>
-                            <p class="text-muted">${book.author}</p>
-                            <p class="text-sm">ISBN: ${book.isbn}</p>
+                            <p class="text-muted" style="margin-bottom: 8px;">${book.author}</p>
+                            <p class="text-sm">🏢 ${book.publisher}</p>
+                            <p class="text-sm">📅 ${book.publishDate} | 📑 ${book.pages}</p>
+                            <div class="subjects-container" style="margin-bottom: 8px;">
+                                ${book.subjectsHtml}
+                            </div>
+                            ${book.url !== "#" ? `<a href="${book.url}" target="_blank">View on Open Library ↗</a>` : ''}
                         </div>
                     </div>
                     <div class="card-actions">
@@ -348,7 +405,7 @@
         // 6. Sync Logic (Attach your Drive API logic here)
         syncBtn.addEventListener('click', () => {
             syncBtn.innerHTML = "Syncing...";
-            // Insert the appDataFolder Drive logic here
+            // Insert your Google Drive appDataFolder sync logic here
             setTimeout(() => {
                 syncBtn.innerHTML = `
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
