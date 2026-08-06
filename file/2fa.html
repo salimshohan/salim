@@ -433,7 +433,7 @@
     confirmOverlay: document.getElementById('confirmOverlay'),
     confirmDelete: document.getElementById('confirmDelete'),
     confirmCancel: document.getElementById('confirmCancel'),
-    syncDriveBtn: document.getElementById('syncDriveBtn'), // Added
+    syncDriveBtn: document.getElementById('syncDriveBtn'),
   };
 
   let accounts = loadAccounts();
@@ -527,6 +527,7 @@
     els.addPanel.classList.remove('open');
     showToast('Account added');
     render();
+    autoSyncIfConnected();
   }
 
   els.addBtn.addEventListener('click', tryAdd);
@@ -554,6 +555,7 @@
       saveAccounts();
       showToast(acc ? `Removed "${acc.name}"` : 'Account removed');
       render();
+      autoSyncIfConnected();
     }
     closeConfirm();
   });
@@ -619,6 +621,7 @@
         saveAccounts();
         render();
         showToast(added ? `Imported ${added} account(s)` : 'No valid accounts found', added===0);
+        autoSyncIfConnected();
       }catch(err){
         showToast('Could not read that backup file', true);
       }
@@ -780,13 +783,18 @@
       }
   });
 
+  function autoSyncIfConnected() {
+      if (typeof gapi !== 'undefined' && gapi.client && gapi.client.getToken() !== null) {
+          syncWithDrive();
+      }
+  }
+
   async function syncWithDrive() {
       showToast('Syncing with Drive...');
       const accessToken = gapi.client.getToken().access_token;
       const headers = { 'Authorization': 'Bearer ' + accessToken };
 
       try {
-          // 1. Search for existing backups in the hidden folder
           const searchRes = await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name="vaultkey_backup.json"&fields=files(id,modifiedTime)&orderBy=modifiedTime desc', { headers });
           const searchData = await searchRes.json();
           const files = searchData.files || [];
@@ -794,7 +802,6 @@
           let driveAccounts = [];
           let fileId = files.length > 0 ? files[0].id : null;
 
-          // 2. If a backup exists, download it
           if (fileId) {
               const fileRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { headers });
               if (fileRes.ok) {
@@ -802,17 +809,15 @@
               }
           }
 
-          // 3. Merge Local and Drive accounts safely (prevent duplicates)
           let localAccounts = loadAccounts();
           let mergedMap = new Map();
 
-          // Add Drive accounts first
           if (Array.isArray(driveAccounts)) {
               driveAccounts.forEach(acc => {
                   if (acc && acc.secret) mergedMap.set(acc.secret, acc);
               });
           }
-          // Add Local accounts (will override Drive ones if they share the same secret)
+          
           if (Array.isArray(localAccounts)) {
               localAccounts.forEach(acc => {
                   if (acc && acc.secret) mergedMap.set(acc.secret, acc);
@@ -821,30 +826,25 @@
 
           const mergedAccounts = Array.from(mergedMap.values());
           
-          // Update the UI with the newly combined list
           accounts = mergedAccounts;
           saveAccounts();
           render();
 
-          // 4. Upload the combined list back to Drive
           const fileContent = new Blob([JSON.stringify(mergedAccounts)], {type: 'application/json'});
 
           if (fileId) {
-              // Update the existing file
               await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
                   method: 'PATCH',
                   headers: headers,
                   body: fileContent
               });
 
-              // Clean up older duplicate files if the previous code created them
               if (files.length > 1) {
                   for (let i = 1; i < files.length; i++) {
                       fetch(`https://www.googleapis.com/drive/v3/files/${files[i].id}`, { method: 'DELETE', headers });
                   }
               }
           } else {
-              // Create a brand new file if none existed
               const metadata = { 'name': 'vaultkey_backup.json', 'parents': ['appDataFolder'] };
               const form = new FormData();
               form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
