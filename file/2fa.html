@@ -326,8 +326,8 @@
     </div>
   </div>
   <div class="nav-actions">
-    <button class="icon-btn" id="exportBtn" title="Export backup"><i class="fas fa-arrow-up-from-bracket"></i></button>
-    <button class="icon-btn" id="importBtn" title="Import backup"><i class="fas fa-arrow-down-to-bracket"></i></button>
+    <button class="icon-btn" id="exportBtn" title="Export backup"><i class="fas fa-upload"></i></button>
+    <button class="icon-btn" id="importBtn" title="Import backup"><i class="fas fa-download"></i></button>
     <input type="file" id="importFile" accept="application/json">
   </div>
 </nav>
@@ -448,11 +448,6 @@
   function cleanSecret(s){ return s.replace(/\s+/g,'').toUpperCase(); }
   function isValidBase32(s){ return /^[A-Z2-7]+=*$/.test(s) && s.length >= 8; }
 
-  function colorFor(name){
-    let hash = 0;
-    for(let i=0;i<name.length;i++){ hash = name.charCodeAt(i) + ((hash<<5)-hash); }
-    return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
-  }
   function initialsFor(name){
     const parts = name.trim().split(/\s+/).filter(Boolean);
     if(parts.length === 0) return '?';
@@ -586,7 +581,8 @@
     const blob = new Blob([JSON.stringify(accounts, null, 2)], { type:'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = 'vaultkey-backup.json';
+    const randomSuffix = Math.floor(10000 + Math.random() * 90000);
+    a.href = url; a.download = `vaultkey-backup-${randomSuffix}.json`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
     showToast('Backup downloaded');
@@ -604,7 +600,12 @@
         let added = 0;
         parsed.forEach(item=>{
           if(item && item.name && item.secret && isValidBase32(cleanSecret(item.secret))){
-            accounts.push({ id: uid(), name: String(item.name), secret: cleanSecret(item.secret) });
+            accounts.push({ 
+              id: uid(), 
+              name: String(item.name), 
+              secret: cleanSecret(item.secret),
+              color: item.color 
+            });
             added++;
           }
         });
@@ -641,7 +642,11 @@
     card.className = 'account-card';
     card.dataset.id = acc.id;
 
-    const color = colorFor(acc.name);
+    if (!acc.color) {
+      acc.color = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
+      saveAccounts();
+    }
+    const color = acc.color;
 
     card.innerHTML = `
       <div class="ring-wrap">
