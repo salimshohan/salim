@@ -6,8 +6,9 @@
 <title>VaultKey — Authenticator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/otpauth/9.2.2/otpauth.umd.min.js"></script>
+<!-- Fixed Font Awesome loading issue by using latest version with proper crossorigin -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/otpauth/9.3.1/otpauth.umd.min.js"></script>
 <style>
   :root{
     --bg:#0a0d20;
@@ -209,11 +210,19 @@
   }
 
   .account-body{flex:1;min-width:0;}
+  .account-name-wrap{
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;
+  }
   .account-name{
     font-size:13.5px;font-weight:600;color:var(--text-muted);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    margin-bottom:3px;
   }
+  .account-timer{
+    font-size:11.5px;font-weight:600;color:var(--text-faint);
+    font-variant-numeric:tabular-nums;
+  }
+  .account-timer.urgent{color:var(--danger);}
+
   .account-code{
     font-family:var(--font-mono);font-weight:700;font-size:23px;letter-spacing:2.5px;
     color:var(--text);
@@ -644,7 +653,10 @@
         <div class="ring-avatar" style="background:${color};">${initialsFor(acc.name)}</div>
       </div>
       <div class="account-body">
-        <div class="account-name">${escapeHtml(acc.name)}</div>
+        <div class="account-name-wrap">
+          <div class="account-name">${escapeHtml(acc.name)}</div>
+          <div class="account-timer" data-role="timer"></div>
+        </div>
         <div class="account-code" data-role="code">------</div>
       </div>
       <div class="account-actions">
@@ -680,6 +692,7 @@
       const acc = accounts.find(a=>a.id === card.dataset.id);
       if(!acc) return;
       const codeEl = card.querySelector('[data-role="code"]');
+      const timerEl = card.querySelector('[data-role="timer"]');
       const ringFill = card.querySelector('.ring-fill');
       const ringWrap = card.querySelector('.ring-wrap');
 
@@ -688,10 +701,13 @@
         codeEl.textContent = 'Invalid secret key';
         codeEl.classList.add('invalid-text');
         card.classList.add('invalid');
+        timerEl.textContent = '';
       } else {
         codeEl.textContent = code.slice(0,3) + ' ' + code.slice(3);
         codeEl.classList.remove('invalid-text');
         card.classList.remove('invalid');
+        timerEl.textContent = countDown + 's';
+        timerEl.classList.toggle('urgent', urgent);
       }
 
       ringFill.style.strokeDashoffset = offset;
