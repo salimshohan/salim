@@ -3,40 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salim Hosen Shohan - Portfolio</title>
-    <!-- Connects the CSS file to design the page -->
-    <link rel="stylesheet" href="style.css">
+    <title>Salim Hosen Shohan | Portfolio</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- CSS VARIABLES & RESET --- */
+        :root {
+            --primary: #00f2fe;
+            --secondary: #4facfe;
+            --dark: #0f172a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        /* --- DYNAMIC BACKGROUND ANIMATION --- */
+        body {
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #172554, #020617);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- LAYOUT & GLASSMORPHISM --- */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px 0 rgba(0, 242, 254, 0.2);
+            border-color: rgba(0, 242, 254, 0.3);
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            min-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            animation: fadeInDown 1s ease;
+        }
+
+        .typewriter-container {
+            font-size: 1.5rem;
+            color: #cbd5e1;
+            height: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* --- SKILLS & TAGS --- */
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 3px;
+            background: var(--primary);
+            bottom: -5px;
+            left: 0;
+            border-radius: 5px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 1rem;
+        }
+
+        .tag {
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--primary);
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tag:hover {
+            background: var(--primary);
+            color: var(--dark);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        /* --- GRID LAYOUT FOR SECTIONS --- */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        p {
+            color: #e2e8f0;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .highlight {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* --- SCROLL ANIMATIONS --- */
+        .hidden {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease-out;
+        }
+
+        .show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- KEYFRAMES --- */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- RESPONSIVE DESIGN --- */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .glass-card { padding: 2rem; }
+        }
+    </style>
 </head>
 <body>
-    <header class="hero-section">
+
+    <!-- HERO SECTION -->
+    <header class="hero container">
         <h1>Salim Hosen Shohan</h1>
-        <!-- The JavaScript will inject typing text here -->
-        <p id="typewriter-text"></p>
+        <div class="typewriter-container">
+            <span id="typewriter"></span><span style="animation: blink 1s infinite;">|</span>
+        </div>
+        <p class="hidden">Building the future of the web, one line of code at a time.</p>
     </header>
 
-    <main class="content-container">
-        <section class="info-card">
-            <h2>About Me</h2>
-            <p>I am a student in the Department of Information Science and Library Management (ISLM) at the University of Rajshahi. My primary goals are to improve my programming skills, build useful educational web applications, and learn efficiently through practical examples.</p>
+    <main class="container">
+        <!-- ABOUT SECTION -->
+        <section class="glass-card hidden">
+            <h2><i class="fa-solid fa-user-astronaut"></i> About Me</h2>
+            <p>I am a student in the Department of Information Science and Library Management (<span class="highlight">ISLM</span>) at the <span class="highlight">University of Rajshahi</span>. I bridge the gap between information architecture and modern technology.</p>
+            <br>
+            <p>Whether I'm managing my digital ventures like <span class="highlight">The Ironic Bro</span> or building new educational web applications, my goal is to learn efficiently through practical examples and create tools that make a real impact.</p>
         </section>
 
-        <section class="info-card">
-            <h2>My Interests & Skills</h2>
-            <ul class="tag-list">
-                <li>Programming & Web Development</li>
-                <li>AI Tools & Automation</li>
-                <li>Open Source Software</li>
-                <li>Educational Tools</li>
-                <li>Social Media Content</li>
-            </ul>
-        </section>
+        <!-- SKILLS & INTERESTS SECTION -->
+        <div class="grid-2">
+            <section class="glass-card hidden">
+                <h2><i class="fa-solid fa-code"></i> Technical Focus</h2>
+                <div class="tags">
+                    <span class="tag">Web Development</span>
+                    <span class="tag">JavaScript (ES6+)</span>
+                    <span class="tag">HTML5 & CSS3</span>
+                    <span class="tag">Open Source</span>
+                    <span class="tag">UI/UX Design</span>
+                </div>
+            </section>
+
+            <section class="glass-card hidden">
+                <h2><i class="fa-solid fa-microchip"></i> Tools & Interests</h2>
+                <div class="tags">
+                    <span class="tag">AI Tools & Automation</span>
+                    <span class="tag">Educational Apps</span>
+                    <span class="tag">Social Media Content</span>
+                    <span class="tag">Digital Portfolios</span>
+                </div>
+            </section>
+        </div>
     </main>
 
-    <footer>
-        <p>&copy; 2026 Salim Hosen Shohan. Built from scratch with HTML, CSS & JS.</p>
-    </footer>
+    <!-- INTERACTIVE JAVASCRIPT -->
+    <script>
+        // 1. ADVANCED TYPEWRITER EFFECT
+        const words = [
+            "ISLM Student @ Rajshahi University", 
+            "Web Developer & Programmer", 
+            "Creator of The Ironic Bro", 
+            "AI & Automation Enthusiast"
+        ];
+        let wordIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typewriterElement = document.getElementById("typewriter");
 
-    <!-- Connects the JavaScript file for interactivity -->
-    <script src="script.js"></script>
+        function type() {
+            const currentWord = words[wordIndex];
+            
+            if (isDeleting) {
+                typewriterElement.textContent = currentWord.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typewriterElement.textContent = currentWord.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let typeSpeed = isDeleting ? 50 : 100;
+
+            // Pause at the end of a word
+            if (!isDeleting && charIndex === currentWord.length) {
+                typeSpeed = 2000; 
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                wordIndex = (wordIndex + 1) % words.length;
+                typeSpeed = 500;
+            }
+
+            setTimeout(type, typeSpeed);
+        }
+
+        // Start typewriter on load
+        window.onload = type;
+
+        // 2. SCROLL REVEAL ANIMATION (Intersection Observer)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('show');
+                }
+            });
+        }, {
+            threshold: 0.1 // Triggers when 10% of the element is visible
+        });
+
+        // Select all elements with the 'hidden' class and observe them
+        const hiddenElements = document.querySelectorAll('.hidden');
+        hiddenElements.forEach((el) => observer.observe(el));
+    </script>
 </body>
 </html>
