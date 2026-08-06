@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VaultKey — Authenticator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/otpauth/9.2.2/otpauth.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0a0d20;
+    --bg-2:#0e1228;
+    --surface:#141935;
+    --surface-2:#1b2144;
+    --border:#272e5a;
+    --border-soft:#20264a;
+    --accent:#7b6ef6;
+    --accent-soft:rgba(123,110,246,.16);
+    --mint:#3ed6b5;
+    --amber:#f5a623;
+    --danger:#ff5d6c;
+    --text:#eef0fb;
+    --text-muted:#8b90b8;
+    --text-faint:#5b6096;
+    --radius:16px;
+    --font-display:'Space Grotesk',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{-webkit-tap-highlight-color:transparent;}
+  body{
+    background:
+      radial-gradient(circle at 12% 0%, rgba(123,110,246,.16), transparent 42%),
+      radial-gradient(circle at 88% 12%, rgba(62,214,181,.10), transparent 40%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px;}
+
+  /* ---------- Navbar ---------- */
+  .navbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 22px;
+    border-bottom:1px solid var(--border-soft);
+  }
+  .nav-left{display:flex;align-items:center;gap:11px;}
+  .logo{
+    width:34px;height:34px;border-radius:10px;
+    background:linear-gradient(145deg,var(--accent),#5a4de0);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 16px rgba(123,110,246,.35);
+    position:relative;
+  }
+  .logo i{color:#fff;font-size:14px;}
+  .nav-title{font-family:var(--font-display);font-weight:700;font-size:17px;letter-spacing:.2px;}
+  .nav-sub{font-size:11px;color:var(--text-faint);font-weight:500;letter-spacing:.3px;}
+
+  .icon-btn{
+    background:var(--surface);
+    border:1px solid var(--border-soft);
+    color:var(--text-muted);
+    width:38px;height:38px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;font-size:14px;
+    transition:all .18s ease;
+  }
+  .icon-btn:hover{color:var(--text);border-color:var(--accent);transform:translateY(-1px);}
+
+  .nav-actions{display:flex;gap:8px;}
+
+  /* ---------- Main layout ---------- */
+  .container{
+    flex:1;width:100%;max-width:540px;margin:0 auto;
+    padding:26px 18px 60px;
+    display:flex;flex-direction:column;gap:22px;
+  }
+
+  /* ---------- Add-account panel ---------- */
+  .add-panel{
+    background:var(--surface);
+    border:1px solid var(--border-soft);
+    border-radius:var(--radius);
+    padding:18px;
+    animation:riseIn .5s cubic-bezier(.2,.8,.2,1) both;
+  }
+  .add-panel-head{
+    display:flex;align-items:center;justify-content:space-between;
+    cursor:pointer;
+    user-select:none;
+  }
+  .add-panel-head h2{
+    font-family:var(--font-display);font-size:15px;font-weight:600;
+    display:flex;align-items:center;gap:9px;
+  }
+  .add-panel-head h2 .ring-dot{
+    width:8px;height:8px;border-radius:50%;background:var(--mint);
+    box-shadow:0 0 0 4px rgba(62,214,181,.16);
+  }
+  .chevron{color:var(--text-faint);transition:transform .28s ease;font-size:13px;}
+  .add-panel.open .chevron{transform:rotate(180deg);}
+
+  .add-form{
+    display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.2,.8,.2,1);
+  }
+  .add-panel.open .add-form{grid-template-rows:1fr;}
+  .add-form-inner{overflow:hidden;}
+
+  .field{margin-top:14px;}
+  .field label{
+    display:block;font-size:11.5px;font-weight:600;color:var(--text-muted);
+    margin-bottom:7px;letter-spacing:.3px;text-transform:uppercase;
+  }
+  .field-input-wrap{position:relative;}
+  .field-input-wrap i{
+    position:absolute;left:14px;top:50%;transform:translateY(-50%);
+    color:var(--text-faint);font-size:14px;
+  }
+  .field input{
+    width:100%;
+    background:var(--bg-2);
+    border:1.5px solid var(--border);
+    color:var(--text);
+    padding:12px 14px 12px 40px;
+    border-radius:11px;
+    font-size:14.5px;
+    font-family:var(--font-body);
+    outline:none;
+    transition:border-color .18s ease, box-shadow .18s ease;
+  }
+  .field input::placeholder{color:var(--text-faint);}
+  .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3.5px var(--accent-soft);}
+  .field.has-error input{border-color:var(--danger);box-shadow:0 0 0 3.5px rgba(255,93,108,.16);}
+  .field-error{
+    font-size:12px;color:var(--danger);margin-top:6px;font-weight:500;
+    display:none;align-items:center;gap:6px;
+  }
+  .field.has-error .field-error{display:flex;}
+
+  .btn{
+    border:none;border-radius:11px;font-family:var(--font-body);
+    font-weight:600;font-size:14.5px;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn-primary{
+    width:100%;padding:13px;margin-top:18px;
+    background:linear-gradient(140deg,var(--accent),#5a4de0);
+    color:#fff;box-shadow:0 8px 20px rgba(123,110,246,.28);
+  }
+  .btn-primary:hover{box-shadow:0 10px 24px rgba(123,110,246,.4);transform:translateY(-1px);}
+  .btn-ghost{
+    background:transparent;border:1px solid var(--border);color:var(--text-muted);
+    padding:9px 14px;font-size:13px;
+  }
+  .btn-ghost:hover{border-color:var(--accent);color:var(--text);}
+
+  /* ---------- Search ---------- */
+  .search-wrap{position:relative;}
+  .search-wrap i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-faint);font-size:13px;}
+  .search-wrap input{
+    width:100%;background:var(--surface);border:1px solid var(--border-soft);
+    color:var(--text);padding:11px 14px 11px 38px;border-radius:11px;font-size:13.5px;outline:none;
+    transition:border-color .18s ease;
+  }
+  .search-wrap input:focus{border-color:var(--accent);}
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .toolbar-count{font-size:12.5px;color:var(--text-faint);font-weight:500;}
+  .toolbar-actions{display:flex;gap:8px;}
+
+  /* ---------- Accounts list ---------- */
+  .accounts-list{display:flex;flex-direction:column;gap:12px;}
+
+  .account-card{
+    background:var(--surface);
+    border:1px solid var(--border-soft);
+    border-radius:var(--radius);
+    padding:15px;
+    display:flex;align-items:center;gap:14px;
+    animation:riseIn .45s cubic-bezier(.2,.8,.2,1) both;
+    transition:border-color .2s ease;
+  }
+  .account-card:hover{border-color:var(--border);}
+  .account-card.invalid{border-color:rgba(255,93,108,.4);}
+
+  .ring-wrap{position:relative;width:52px;height:52px;flex-shrink:0;}
+  .ring-wrap svg{width:52px;height:52px;transform:rotate(-90deg);}
+  .ring-track{fill:none;stroke:var(--border);stroke-width:4;}
+  .ring-fill{
+    fill:none;stroke:var(--mint);stroke-width:4;stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear, stroke .3s ease;
+  }
+  .ring-avatar{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-display);font-weight:700;font-size:14px;color:#fff;
+    border-radius:50%;
+  }
+
+  .account-body{flex:1;min-width:0;}
+  .account-name{
+    font-size:13.5px;font-weight:600;color:var(--text-muted);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    margin-bottom:3px;
+  }
+  .account-code{
+    font-family:var(--font-mono);font-weight:700;font-size:23px;letter-spacing:2.5px;
+    color:var(--text);
+  }
+  .account-code.invalid-text{font-size:13px;color:var(--danger);font-family:var(--font-body);letter-spacing:0;font-weight:500;}
+
+  .account-actions{display:flex;align-items:center;gap:6px;}
+  .mini-btn{
+    width:36px;height:36px;border-radius:10px;border:1px solid var(--border-soft);
+    background:var(--bg-2);color:var(--text-muted);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:13px;
+    transition:all .16s ease;
+  }
+  .mini-btn:hover{color:var(--text);border-color:var(--accent);}
+  .mini-btn.delete:hover{color:var(--danger);border-color:var(--danger);}
+  .mini-btn.copied{color:var(--mint);border-color:var(--mint);}
+
+  /* ---------- Empty state ---------- */
+  .empty-state{
+    text-align:center;padding:50px 20px;color:var(--text-faint);
+    display:flex;flex-direction:column;align-items:center;gap:14px;
+    animation:riseIn .5s ease both;
+  }
+  .empty-state .empty-icon{
+    width:58px;height:58px;border-radius:16px;background:var(--surface);
+    border:1px solid var(--border-soft);
+    display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--accent);
+  }
+  .empty-state h3{font-family:var(--font-display);color:var(--text-muted);font-size:15px;font-weight:600;}
+  .empty-state p{font-size:13px;max-width:280px;line-height:1.5;}
+
+  /* ---------- Footer ---------- */
+  .footer-note{
+    text-align:center;font-size:12px;color:var(--text-faint);
+    display:flex;align-items:center;justify-content:center;gap:7px;
+    margin-top:4px;
+  }
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed;bottom:26px;left:50%;
+    transform:translateX(-50%) translateY(120%);
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:12px 20px;border-radius:30px;
+    font-size:13.5px;font-weight:600;
+    display:flex;align-items:center;gap:9px;
+    box-shadow:0 12px 30px rgba(0,0,0,.4);
+    transition:transform .4s cubic-bezier(.2,.9,.25,1.3);
+    z-index:1000;
+  }
+  .toast.show{transform:translateX(-50%) translateY(0);}
+  .toast i{color:var(--mint);}
+  .toast.toast-danger i{color:var(--danger);}
+
+  /* ---------- Confirm dialog ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(5,7,18,.6);backdrop-filter:blur(3px);
+    display:flex;align-items:center;justify-content:center;padding:20px;
+    opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:1100;
+  }
+  .overlay.show{opacity:1;pointer-events:auto;}
+  .confirm-box{
+    background:var(--surface);border:1px solid var(--border);border-radius:16px;
+    padding:22px;max-width:340px;width:100%;
+    transform:translateY(14px) scale(.97);transition:transform .25s cubic-bezier(.2,.8,.2,1);
+  }
+  .overlay.show .confirm-box{transform:translateY(0) scale(1);}
+  .confirm-box h3{font-family:var(--font-display);font-size:16px;margin-bottom:8px;}
+  .confirm-box p{font-size:13.5px;color:var(--text-muted);line-height:1.5;margin-bottom:18px;}
+  .confirm-actions{display:flex;gap:10px;}
+  .confirm-actions .btn{flex:1;padding:11px;}
+  .btn-danger{background:var(--danger);color:#fff;}
+  .btn-danger:hover{box-shadow:0 8px 18px rgba(255,93,108,.32);}
+
+  input[type="file"]{display:none;}
+
+  /* ---------- Animations ---------- */
+  @keyframes riseIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes pulseRing{0%,100%{filter:drop-shadow(0 0 0 rgba(255,93,108,0));}50%{filter:drop-shadow(0 0 5px rgba(255,93,108,.55));}}
+  .ring-wrap.urgent .ring-fill{animation:pulseRing 1s ease-in-out infinite;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001s !important;transition-duration:.001s !important;}
+  }
+
+  @media (max-width:380px){
+    .account-code{font-size:20px;letter-spacing:1.5px;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <div class="logo"><i class="fas fa-shield-halved"></i></div>
+    <div>
+      <div class="nav-title">VaultKey</div>
+      <div class="nav-sub">Local 2FA codes</div>
+    </div>
+  </div>
+  <div class="nav-actions">
+    <button class="icon-btn" id="exportBtn" title="Export backup"><i class="fas fa-arrow-up-from-bracket"></i></button>
+    <button class="icon-btn" id="importBtn" title="Import backup"><i class="fas fa-arrow-down-to-bracket"></i></button>
+    <input type="file" id="importFile" accept="application/json">
+  </div>
+</nav>
+
+<main class="container">
+
+  <section class="add-panel" id="addPanel">
+    <div class="add-panel-head" id="addPanelHead">
+      <h2><span class="ring-dot"></span> Add an account</h2>
+      <i class="fas fa-chevron-down chevron"></i>
+    </div>
+    <div class="add-form">
+      <div class="add-form-inner">
+        <div class="field" id="nameField">
+          <label for="accName">Account name</label>
+          <div class="field-input-wrap">
+            <i class="fas fa-user"></i>
+            <input type="text" id="accName" placeholder="e.g. Gmail — salim@..." autocomplete="off">
+          </div>
+          <div class="field-error"><i class="fas fa-circle-exclamation"></i><span>Give this account a name.</span></div>
+        </div>
+        <div class="field" id="secretField">
+          <label for="accSecret">Secret key</label>
+          <div class="field-input-wrap">
+            <i class="fas fa-key"></i>
+            <input type="text" id="accSecret" placeholder="e.g. JBSWY3DPEHPK3PXP" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="field-error"><i class="fas fa-circle-exclamation"></i><span>That doesn't look like a valid secret key.</span></div>
+        </div>
+        <button class="btn btn-primary" id="addBtn"><i class="fas fa-plus"></i> Add account</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="search-wrap" id="searchWrap" style="display:none;">
+    <i class="fas fa-magnifying-glass"></i>
+    <input type="text" id="searchInput" placeholder="Search accounts...">
+  </div>
+
+  <div class="toolbar" id="toolbar" style="display:none;">
+    <span class="toolbar-count" id="accountCount">0 accounts</span>
+  </div>
+
+  <section class="accounts-list" id="accountsList"></section>
+
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon"><i class="fas fa-vault"></i></div>
+    <h3>No accounts yet</h3>
+    <p>Add a secret key above to start generating codes. Everything stays on this device.</p>
+  </div>
+
+  <div class="footer-note"><i class="fas fa-lock"></i> Codes are generated on this device only</div>
+</main>
+
+<div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastText">Copied</span></div>
+
+<div class="overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3>Remove this account?</h3>
+    <p id="confirmText">This will delete the account and its secret key from this device. This can't be undone.</p>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" id="confirmCancel">Cancel</button>
+      <button class="btn btn-danger" id="confirmDelete">Remove</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const STORAGE_KEY = 'vaultkey_accounts_v1';
+  const PERIOD = 30;
+  const RADIUS = 22;
+  const CIRC = 2 * Math.PI * RADIUS;
+  const AVATAR_COLORS = ['#7b6ef6','#3ed6b5','#f5a623','#ff5d6c','#5aa9ff','#c66ef6'];
+
+  const els = {
+    addPanel: document.getElementById('addPanel'),
+    addPanelHead: document.getElementById('addPanelHead'),
+    nameField: document.getElementById('nameField'),
+    secretField: document.getElementById('secretField'),
+    accName: document.getElementById('accName'),
+    accSecret: document.getElementById('accSecret'),
+    addBtn: document.getElementById('addBtn'),
+    searchWrap: document.getElementById('searchWrap'),
+    searchInput: document.getElementById('searchInput'),
+    toolbar: document.getElementById('toolbar'),
+    accountCount: document.getElementById('accountCount'),
+    accountsList: document.getElementById('accountsList'),
+    emptyState: document.getElementById('emptyState'),
+    toast: document.getElementById('toast'),
+    toastText: document.getElementById('toastText'),
+    exportBtn: document.getElementById('exportBtn'),
+    importBtn: document.getElementById('importBtn'),
+    importFile: document.getElementById('importFile'),
+    confirmOverlay: document.getElementById('confirmOverlay'),
+    confirmDelete: document.getElementById('confirmDelete'),
+    confirmCancel: document.getElementById('confirmCancel'),
+  };
+
+  let accounts = loadAccounts();
+  let pendingDeleteId = null;
+  let tickHandle = null;
+
+  // ---------- storage ----------
+  function loadAccounts(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function saveAccounts(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts)); }catch(e){}
+  }
+
+  // ---------- helpers ----------
+  function cleanSecret(s){ return s.replace(/\s+/g,'').toUpperCase(); }
+  function isValidBase32(s){ return /^[A-Z2-7]+=*$/.test(s) && s.length >= 8; }
+
+  function colorFor(name){
+    let hash = 0;
+    for(let i=0;i<name.length;i++){ hash = name.charCodeAt(i) + ((hash<<5)-hash); }
+    return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+  }
+  function initialsFor(name){
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if(parts.length === 0) return '?';
+    if(parts.length === 1) return parts[0].slice(0,2).toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  function uid(){ return 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+  function generateCode(secretRaw){
+    try{
+      const totp = new OTPAuth.TOTP({
+        issuer:'VaultKey', label:'account', algorithm:'SHA1',
+        digits:6, period:PERIOD, secret: OTPAuth.Secret.fromBase32(secretRaw)
+      });
+      return totp.generate();
+    }catch(e){ return null; }
+  }
+
+  // ---------- toast ----------
+  let toastTimer = null;
+  function showToast(text, danger){
+    els.toastText.textContent = text;
+    els.toast.classList.toggle('toast-danger', !!danger);
+    els.toast.querySelector('i').className = danger ? 'fas fa-triangle-exclamation' : 'fas fa-check-circle';
+    els.toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> els.toast.classList.remove('show'), 2600);
+  }
+
+  // ---------- add-panel collapse ----------
+  els.addPanelHead.addEventListener('click', ()=>{
+    els.addPanel.classList.toggle('open');
+  });
+
+  // ---------- validation ----------
+  function clearFieldError(field){ field.classList.remove('has-error'); }
+  function setFieldError(field, msg){
+    field.classList.add('has-error');
+    if(msg) field.querySelector('.field-error span').textContent = msg;
+  }
+  els.accName.addEventListener('input', ()=>clearFieldError(els.nameField));
+  els.accSecret.addEventListener('input', ()=>clearFieldError(els.secretField));
+
+  function tryAdd(){
+    const name = els.accName.value.trim();
+    const secretClean = cleanSecret(els.accSecret.value);
+    let ok = true;
+
+    if(!name){ setFieldError(els.nameField); ok = false; } else { clearFieldError(els.nameField); }
+
+    if(!secretClean){
+      setFieldError(els.secretField, 'Enter a secret key.');
+      ok = false;
+    } else if(!isValidBase32(secretClean)){
+      setFieldError(els.secretField, "That doesn't look like a valid secret key.");
+      ok = false;
+    } else if(generateCode(secretClean) === null){
+      setFieldError(els.secretField, "Couldn't read this secret key.");
+      ok = false;
+    } else {
+      clearFieldError(els.secretField);
+    }
+
+    if(!ok) return;
+
+    accounts.push({ id: uid(), name, secret: secretClean });
+    saveAccounts();
+    els.accName.value = '';
+    els.accSecret.value = '';
+    els.addPanel.classList.remove('open');
+    showToast('Account added');
+    render();
+  }
+
+  els.addBtn.addEventListener('click', tryAdd);
+  [els.accName, els.accSecret].forEach(inp=>{
+    inp.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); tryAdd(); } });
+  });
+
+  // ---------- search ----------
+  els.searchInput.addEventListener('input', render);
+
+  // ---------- delete ----------
+  function openConfirm(id, name){
+    pendingDeleteId = id;
+    document.getElementById('confirmText').textContent =
+      `This will delete "${name}" and its secret key from this device. This can't be undone.`;
+    els.confirmOverlay.classList.add('show');
+  }
+  function closeConfirm(){ els.confirmOverlay.classList.remove('show'); pendingDeleteId = null; }
+  els.confirmCancel.addEventListener('click', closeConfirm);
+  els.confirmOverlay.addEventListener('click', e=>{ if(e.target === els.confirmOverlay) closeConfirm(); });
+  els.confirmDelete.addEventListener('click', ()=>{
+    if(pendingDeleteId){
+      const acc = accounts.find(a=>a.id === pendingDeleteId);
+      accounts = accounts.filter(a=>a.id !== pendingDeleteId);
+      saveAccounts();
+      showToast(acc ? `Removed "${acc.name}"` : 'Account removed');
+      render();
+    }
+    closeConfirm();
+  });
+
+  // ---------- copy ----------
+  function copyCode(code, btn){
+    const clean = code.replace(/\s+/g,'');
+    const done = ()=>{
+      showToast('Code copied');
+      btn.classList.add('copied');
+      const original = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check"></i>';
+      setTimeout(()=>{ btn.innerHTML = original; btn.classList.remove('copied'); }, 1500);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(clean).then(done).catch(()=>fallbackCopy(clean, done));
+    } else {
+      fallbackCopy(clean, done);
+    }
+  }
+  function fallbackCopy(text, done){
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); done(); }catch(e){ showToast('Copy failed', true); }
+    document.body.removeChild(ta);
+  }
+
+  // ---------- export / import ----------
+  els.exportBtn.addEventListener('click', ()=>{
+    if(accounts.length === 0){ showToast('Nothing to export', true); return; }
+    const blob = new Blob([JSON.stringify(accounts, null, 2)], { type:'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'vaultkey-backup.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Backup downloaded');
+  });
+
+  els.importBtn.addEventListener('click', ()=> els.importFile.click());
+  els.importFile.addEventListener('change', e=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const parsed = JSON.parse(reader.result);
+        if(!Array.isArray(parsed)) throw new Error('bad format');
+        let added = 0;
+        parsed.forEach(item=>{
+          if(item && item.name && item.secret && isValidBase32(cleanSecret(item.secret))){
+            accounts.push({ id: uid(), name: String(item.name), secret: cleanSecret(item.secret) });
+            added++;
+          }
+        });
+        saveAccounts();
+        render();
+        showToast(added ? `Imported ${added} account(s)` : 'No valid accounts found', added===0);
+      }catch(err){
+        showToast('Could not read that backup file', true);
+      }
+      els.importFile.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  // ---------- render ----------
+  function render(){
+    const query = els.searchInput.value.trim().toLowerCase();
+    const filtered = accounts.filter(a=> a.name.toLowerCase().includes(query));
+
+    els.searchWrap.style.display = accounts.length ? 'block' : 'none';
+    els.toolbar.style.display = accounts.length ? 'flex' : 'none';
+    els.accountCount.textContent = `${accounts.length} account${accounts.length===1?'':'s'}`;
+    els.emptyState.style.display = accounts.length ? 'none' : 'flex';
+
+    els.accountsList.innerHTML = '';
+    filtered.forEach(acc=>{
+      els.accountsList.appendChild(buildCard(acc));
+    });
+    tickAll();
+  }
+
+  function buildCard(acc){
+    const card = document.createElement('div');
+    card.className = 'account-card';
+    card.dataset.id = acc.id;
+
+    const color = colorFor(acc.name);
+
+    card.innerHTML = `
+      <div class="ring-wrap">
+        <svg viewBox="0 0 52 52">
+          <circle class="ring-track" cx="26" cy="26" r="${RADIUS}"></circle>
+          <circle class="ring-fill" cx="26" cy="26" r="${RADIUS}"
+            stroke-dasharray="${CIRC}" stroke-dashoffset="0"></circle>
+        </svg>
+        <div class="ring-avatar" style="background:${color};">${initialsFor(acc.name)}</div>
+      </div>
+      <div class="account-body">
+        <div class="account-name">${escapeHtml(acc.name)}</div>
+        <div class="account-code" data-role="code">------</div>
+      </div>
+      <div class="account-actions">
+        <button class="mini-btn" data-role="copy" title="Copy code"><i class="fas fa-copy"></i></button>
+        <button class="mini-btn delete" data-role="delete" title="Remove account"><i class="fas fa-trash"></i></button>
+      </div>
+    `;
+
+    card.querySelector('[data-role="delete"]').addEventListener('click', ()=> openConfirm(acc.id, acc.name));
+    card.querySelector('[data-role="copy"]').addEventListener('click', function(){
+      const codeEl = card.querySelector('[data-role="code"]');
+      if(!codeEl.classList.contains('invalid-text')) copyCode(codeEl.textContent, this);
+    });
+
+    return card;
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // ---------- tick loop, drift-corrected ----------
+  function tickAll(){
+    const epoch = Math.floor(Date.now() / 1000);
+    const countDown = PERIOD - (epoch % PERIOD);
+    const fraction = countDown / PERIOD;
+    const offset = CIRC * (1 - fraction);
+    const urgent = countDown <= 5;
+
+    document.querySelectorAll('.account-card').forEach(card=>{
+      const acc = accounts.find(a=>a.id === card.dataset.id);
+      if(!acc) return;
+      const codeEl = card.querySelector('[data-role="code"]');
+      const ringFill = card.querySelector('.ring-fill');
+      const ringWrap = card.querySelector('.ring-wrap');
+
+      const code = generateCode(acc.secret);
+      if(code === null){
+        codeEl.textContent = 'Invalid secret key';
+        codeEl.classList.add('invalid-text');
+        card.classList.add('invalid');
+      } else {
+        codeEl.textContent = code.slice(0,3) + ' ' + code.slice(3);
+        codeEl.classList.remove('invalid-text');
+        card.classList.remove('invalid');
+      }
+
+      ringFill.style.strokeDashoffset = offset;
+      ringFill.style.stroke = urgent ? 'var(--danger)' : (countDown <= 10 ? 'var(--amber)' : 'var(--mint)');
+      ringWrap.classList.toggle('urgent', urgent);
+    });
+  }
+
+  function scheduleTick(){
+    tickAll();
+    const msToNextSecond = 1000 - (Date.now() % 1000);
+    clearTimeout(tickHandle);
+    tickHandle = setTimeout(()=>{
+      tickAll();
+      tickHandle = setInterval(tickAll, 1000);
+    }, msToNextSecond);
+  }
+
+  // ---------- init ----------
+  render();
+  scheduleTick();
+})();
+</script>
+</body>
+</html>
