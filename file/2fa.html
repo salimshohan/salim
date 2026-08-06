@@ -326,7 +326,7 @@
     </div>
   </div>
   <div class="nav-actions">
-    <!-- Google Drive Sync Button Added Here -->
+    <!-- Google Drive Sync Button -->
     <button class="icon-btn" id="syncDriveBtn" title="Sync to Google Drive"><i class="fab fa-google-drive"></i></button>
     <button class="icon-btn" id="exportBtn" title="Export backup"><i class="fas fa-upload"></i></button>
     <button class="icon-btn" id="importBtn" title="Import backup"><i class="fas fa-download"></i></button>
@@ -397,7 +397,7 @@
   </div>
 </div>
 
-<!-- Google APIs Added Here -->
+<!-- Google APIs -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js"></script>
 
@@ -738,7 +738,7 @@
     }, msToNextSecond);
   }
 
-  // ---------- Google Drive Sync ----------
+  // ---------- Google Drive Sync (Two-Way) ----------
   const CLIENT_ID = '1031078395082-bcda093r3dnj6skso43gtrtnid1aslqs.apps.googleusercontent.com';
   const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
   let tokenClient;
@@ -751,7 +751,7 @@
               if (response.error !== undefined) {
                   throw (response);
               }
-              await backupToDrive();
+              await syncWithDrive();
           },
       });
   }
@@ -780,39 +780,87 @@
       }
   });
 
-  async function backupToDrive() {
+  async function syncWithDrive() {
+      showToast('Syncing with Drive...');
+      const accessToken = gapi.client.getToken().access_token;
+      const headers = { 'Authorization': 'Bearer ' + accessToken };
+
       try {
-          const localData = localStorage.getItem(STORAGE_KEY) || '[]';
-          const fileContent = new Blob([localData], {type: 'application/json'});
-          const metadata = {
-              'name': 'vaultkey_backup.json',
-              'parents': ['appDataFolder']
-          };
+          // 1. Search for existing backups in the hidden folder
+          const searchRes = await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name="vaultkey_backup.json"&fields=files(id,modifiedTime)&orderBy=modifiedTime desc', { headers });
+          const searchData = await searchRes.json();
+          const files = searchData.files || [];
 
-          const form = new FormData();
-          form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
-          form.append('file', fileContent);
+          let driveAccounts = [];
+          let fileId = files.length > 0 ? files[0].id : null;
 
-          const accessToken = gapi.client.getToken().access_token;
-          
-          showToast('Syncing to Drive...');
-          
-          const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-              method: 'POST',
-              headers: new Headers({'Authorization': 'Bearer ' + accessToken}),
-              body: form
-          });
-
-          if (response.ok) {
-              showToast('Synced to Google Drive');
-          } else {
-              const errorText = await response.text();
-              console.error('Backup failed:', errorText);
-              showToast('Failed to sync to Drive', true);
+          // 2. If a backup exists, download it
+          if (fileId) {
+              const fileRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { headers });
+              if (fileRes.ok) {
+                  driveAccounts = await fileRes.json();
+              }
           }
+
+          // 3. Merge Local and Drive accounts safely (prevent duplicates)
+          let localAccounts = loadAccounts();
+          let mergedMap = new Map();
+
+          // Add Drive accounts first
+          if (Array.isArray(driveAccounts)) {
+              driveAccounts.forEach(acc => {
+                  if (acc && acc.secret) mergedMap.set(acc.secret, acc);
+              });
+          }
+          // Add Local accounts (will override Drive ones if they share the same secret)
+          if (Array.isArray(localAccounts)) {
+              localAccounts.forEach(acc => {
+                  if (acc && acc.secret) mergedMap.set(acc.secret, acc);
+              });
+          }
+
+          const mergedAccounts = Array.from(mergedMap.values());
+          
+          // Update the UI with the newly combined list
+          accounts = mergedAccounts;
+          saveAccounts();
+          render();
+
+          // 4. Upload the combined list back to Drive
+          const fileContent = new Blob([JSON.stringify(mergedAccounts)], {type: 'application/json'});
+
+          if (fileId) {
+              // Update the existing file
+              await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+                  method: 'PATCH',
+                  headers: headers,
+                  body: fileContent
+              });
+
+              // Clean up older duplicate files if the previous code created them
+              if (files.length > 1) {
+                  for (let i = 1; i < files.length; i++) {
+                      fetch(`https://www.googleapis.com/drive/v3/files/${files[i].id}`, { method: 'DELETE', headers });
+                  }
+              }
+          } else {
+              // Create a brand new file if none existed
+              const metadata = { 'name': 'vaultkey_backup.json', 'parents': ['appDataFolder'] };
+              const form = new FormData();
+              form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
+              form.append('file', fileContent);
+
+              await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                  method: 'POST',
+                  headers: headers,
+                  body: form
+              });
+          }
+          
+          showToast('Sync successful!');
       } catch (error) {
-          console.error('Error during backup:', error);
-          showToast('Error syncing to Drive', true);
+          console.error('Error during sync:', error);
+          showToast('Sync failed. Check console.', true);
       }
   }
 
