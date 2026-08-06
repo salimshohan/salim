@@ -27,9 +27,10 @@
         }
 
         .app-container {
-            max-width: 1100px;
+            width: 100%;
+            box-sizing: border-box;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 30px;
         }
 
         /* Navbar */
@@ -60,14 +61,6 @@
             gap: 8px;
         }
 
-        .btn-sync {
-            background-color: transparent;
-            color: var(--primary-color);
-            border: 1px solid var(--primary-color);
-            padding: 8px 16px;
-        }
-
-        .btn-sync:hover { background-color: rgba(56, 189, 248, 0.1); }
         .btn-primary { background-color: var(--primary-color); color: #fff; padding: 12px 24px; }
         .btn-primary:hover { background-color: var(--primary-hover); }
         .btn-success { background-color: var(--success-color); color: #fff; padding: 10px 20px; width: 100%; margin-top: 15px;}
@@ -81,6 +74,8 @@
             border-radius: var(--radius);
             padding: 25px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto; /* Centers the search box even on 100% width display */
         }
 
         .input-group {
@@ -237,10 +232,7 @@
     <div class="app-container">
         <nav class="navbar">
             <div class="brand">📚 BookVault</div>
-            <button id="syncBtn" class="btn-sync">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="M12 12v9"></path><path d="m8 17 4-4 4 4"></path></svg>
-                Sync Data
-            </button>
+            <!-- Sync/Backup button removed as requested -->
         </nav>
 
         <main class="dashboard">
@@ -294,7 +286,6 @@
         const saveBtn = document.getElementById('saveBtn');
         const catalogGrid = document.getElementById('catalogGrid');
         const bookCount = document.getElementById('bookCount');
-        const syncBtn = document.getElementById('syncBtn');
 
         // Helper functions for deep data extraction
         const getTagListHtml = (arr) => {
@@ -483,24 +474,6 @@
             localStorage.setItem('vaultBookCatalog', JSON.stringify(catalog));
             renderCatalog();
         }
-
-        // 6. Sync Logic
-        syncBtn.addEventListener('click', () => {
-            syncBtn.innerHTML = "Syncing...";
-            // Insert your Google Drive appDataFolder sync logic here
-            setTimeout(() => {
-                syncBtn.innerHTML = `
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                    Synced
-                `;
-                setTimeout(() => {
-                    syncBtn.innerHTML = `
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="M12 12v9"></path><path d="m8 17 4-4 4 4"></path></svg>
-                        Sync Data
-                    `;
-                }, 2000);
-            }, 1000);
-        });
 
         // Initialize
         renderCatalog();
