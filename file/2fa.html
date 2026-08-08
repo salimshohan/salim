@@ -165,6 +165,25 @@
     padding:9px 14px;font-size:13px;
   }
   .btn-ghost:hover{border-color:var(--accent);color:var(--text);}
+  
+  .btn-warning{background:var(--amber);color:#fff;}
+  .btn-warning:hover{box-shadow:0 8px 18px rgba(245, 166, 35, 0.32);}
+
+  /* ---------- Tabs (Main, Archive, Bin) ---------- */
+  .tabs{
+    display:flex; gap:8px; margin-bottom: -10px;
+    background: var(--surface); padding: 6px; border-radius: 12px;
+    border: 1px solid var(--border-soft);
+  }
+  .tab-btn{
+    flex:1; padding:10px; border-radius:8px; border:none; background:transparent;
+    color:var(--text-muted); font-size:13px; font-weight:600; cursor:pointer;
+    transition:all 0.2s;
+  }
+  .tab-btn.active{
+    background:var(--bg-2); color:var(--text); box-shadow:0 2px 8px rgba(0,0,0,0.2);
+  }
+  .tab-btn:hover:not(.active){ color:var(--text); }
 
   /* ---------- Search ---------- */
   .search-wrap{position:relative;}
@@ -182,7 +201,7 @@
   .toolbar-actions{display:flex;gap:8px;}
 
   /* ---------- Accounts list ---------- */
-  .accounts-list{display:flex;flex-direction:column;gap:12px;}
+  .accounts-list{display:flex;flex-direction:column;gap:12px; min-height: 100px;}
 
   .account-card{
     background:var(--surface);
@@ -191,10 +210,18 @@
     padding:15px;
     display:flex;align-items:center;gap:14px;
     animation:riseIn .45s cubic-bezier(.2,.8,.2,1) both;
-    transition:border-color .2s ease;
+    transition:border-color .2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: grab;
   }
   .account-card:hover{border-color:var(--border);}
   .account-card.invalid{border-color:rgba(255,93,108,.4);}
+  .account-card:active{cursor: grabbing;}
+  .account-card.dragging{
+    opacity: 0.5; border: 2px dashed var(--accent); transform: scale(0.98);
+  }
+  .account-card.drag-over{
+    border-top: 3px solid var(--accent);
+  }
 
   .ring-wrap{position:relative;width:52px;height:52px;flex-shrink:0;}
   .ring-wrap svg{width:52px;height:52px;transform:rotate(-90deg);}
@@ -209,7 +236,7 @@
     border-radius:50%;
   }
 
-  .account-body{flex:1;min-width:0;}
+  .account-body{flex:1;min-width:0; display: flex; flex-direction: column; justify-content: center;}
   .account-name-wrap{
     display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;
   }
@@ -217,11 +244,23 @@
     font-size:13.5px;font-weight:600;color:var(--text-muted);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
+  
+  /* Tags CSS */
+  .tag-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; margin-bottom: 4px;}
+  .tag-item {
+    font-size: 9.5px; background: var(--bg-2); border: 1px solid var(--border);
+    color: var(--text-muted); padding: 2px 6px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
   .account-timer{
     font-size:11.5px;font-weight:600;color:var(--text-faint);
     font-variant-numeric:tabular-nums;
   }
   .account-timer.urgent{color:var(--danger);}
+  
+  .bin-countdown {
+    font-size: 11px; font-weight: 600; color: var(--danger);
+  }
 
   .account-code{
     font-family:var(--font-mono);font-weight:700;font-size:23px;letter-spacing:2.5px;
@@ -229,7 +268,7 @@
   }
   .account-code.invalid-text{font-size:13px;color:var(--danger);font-family:var(--font-body);letter-spacing:0;font-weight:500;}
 
-  .account-actions{display:flex;align-items:center;gap:6px;}
+  .account-actions{display:flex;align-items:center;gap:6px; flex-wrap: wrap; justify-content: flex-end;}
   .mini-btn{
     width:36px;height:36px;border-radius:10px;border:1px solid var(--border-soft);
     background:var(--bg-2);color:var(--text-muted);cursor:pointer;
@@ -238,6 +277,7 @@
   }
   .mini-btn:hover{color:var(--text);border-color:var(--accent);}
   .mini-btn.delete:hover{color:var(--danger);border-color:var(--danger);}
+  .mini-btn.warning:hover{color:var(--amber);border-color:var(--amber);}
   .mini-btn.copied{color:var(--mint);border-color:var(--mint);}
 
   /* ---------- Empty state ---------- */
@@ -278,26 +318,33 @@
   .toast.show{transform:translateX(-50%) translateY(0);}
   .toast i{color:var(--mint);}
   .toast.toast-danger i{color:var(--danger);}
+  .toast.toast-warning i{color:var(--amber);}
 
-  /* ---------- Confirm dialog ---------- */
+  /* ---------- Modals / Overlays ---------- */
   .overlay{
     position:fixed;inset:0;background:rgba(5,7,18,.6);backdrop-filter:blur(3px);
     display:flex;align-items:center;justify-content:center;padding:20px;
     opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:1100;
   }
   .overlay.show{opacity:1;pointer-events:auto;}
-  .confirm-box{
+  .modal-box{
     background:var(--surface);border:1px solid var(--border);border-radius:16px;
     padding:22px;max-width:340px;width:100%;
     transform:translateY(14px) scale(.97);transition:transform .25s cubic-bezier(.2,.8,.2,1);
   }
-  .overlay.show .confirm-box{transform:translateY(0) scale(1);}
-  .confirm-box h3{font-family:var(--font-display);font-size:16px;margin-bottom:8px;}
-  .confirm-box p{font-size:13.5px;color:var(--text-muted);line-height:1.5;margin-bottom:18px;}
-  .confirm-actions{display:flex;gap:10px;}
-  .confirm-actions .btn{flex:1;padding:11px;}
+  .overlay.show .modal-box{transform:translateY(0) scale(1);}
+  .modal-box h3{font-family:var(--font-display);font-size:16px;margin-bottom:8px;}
+  .modal-box p{font-size:13.5px;color:var(--text-muted);line-height:1.5;margin-bottom:18px;}
+  .modal-actions{display:flex;gap:10px; margin-top: 18px;}
+  .modal-actions .btn{flex:1;padding:11px;}
   .btn-danger{background:var(--danger);color:#fff;}
   .btn-danger:hover{box-shadow:0 8px 18px rgba(255,93,108,.32);}
+
+  /* Stats Grid */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+  .stat-card { background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: 12px; padding: 14px; text-align: center; }
+  .stat-val { font-size: 18px; font-weight: 700; color: var(--text); font-family: var(--font-mono); }
+  .stat-label { font-size: 11px; color: var(--text-faint); text-transform: uppercase; margin-top: 4px; letter-spacing: 0.5px;}
 
   input[type="file"]{display:none;}
 
@@ -326,7 +373,7 @@
     </div>
   </div>
   <div class="nav-actions">
-    <!-- Google Drive Sync Button -->
+    <button class="icon-btn" id="statsBtn" title="Storage Stats"><i class="fas fa-chart-pie"></i></button>
     <button class="icon-btn" id="syncDriveBtn" title="Sync to Google Drive"><i class="fab fa-google-drive"></i></button>
     <button class="icon-btn" id="exportBtn" title="Export backup"><i class="fas fa-upload"></i></button>
     <button class="icon-btn" id="importBtn" title="Import backup"><i class="fas fa-download"></i></button>
@@ -357,12 +404,26 @@
             <i class="fas fa-key"></i>
             <input type="text" id="accSecret" placeholder="e.g. JBSWY3DPEHPK3PXP" autocomplete="off" spellcheck="false">
           </div>
-          <div class="field-error"><i class="fas fa-circle-exclamation"></i><span>That doesn't look like a valid secret key.</span></div>
+          <div class="field-error"><i class="fas fa-circle-exclamation"></i><span>Invalid or duplicate secret key.</span></div>
+        </div>
+        <div class="field" id="tagsField">
+          <label for="accTags">Tags (comma separated)</label>
+          <div class="field-input-wrap">
+            <i class="fas fa-hashtag"></i>
+            <input type="text" id="accTags" placeholder="e.g. work, email, personal" autocomplete="off">
+          </div>
         </div>
         <button class="btn btn-primary" id="addBtn"><i class="fas fa-plus"></i> Add account</button>
       </div>
     </div>
   </section>
+
+  <!-- View Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-view="active">Main Vault</button>
+    <button class="tab-btn" data-view="archived">Archive</button>
+    <button class="tab-btn" data-view="binned">Bin</button>
+  </div>
 
   <div class="search-wrap" id="searchWrap" style="display:none;">
     <i class="fas fa-magnifying-glass"></i>
@@ -370,15 +431,15 @@
   </div>
 
   <div class="toolbar" id="toolbar" style="display:none;">
-    <span class="toolbar-count" id="accountCount">0 accounts</span>
+    <span class="toolbar-count" id="accountCount">0 active keys</span>
   </div>
 
   <section class="accounts-list" id="accountsList"></section>
 
   <div class="empty-state" id="emptyState">
-    <div class="empty-icon"><i class="fas fa-vault"></i></div>
-    <h3>No accounts yet</h3>
-    <p>Add a secret key above to start generating codes. Everything stays on this device.</p>
+    <div class="empty-icon" id="emptyIcon"><i class="fas fa-vault"></i></div>
+    <h3 id="emptyTitle">No accounts yet</h3>
+    <p id="emptyDesc">Add a secret key above to start generating codes. Everything stays on this device.</p>
   </div>
 
   <div class="footer-note"><i class="fas fa-lock"></i> Codes are generated on this device only</div>
@@ -386,13 +447,85 @@
 
 <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastText">Copied</span></div>
 
+<!-- Modals -->
 <div class="overlay" id="confirmOverlay">
-  <div class="confirm-box">
-    <h3>Remove this account?</h3>
-    <p id="confirmText">This will delete the account and its secret key from this device. This can't be undone.</p>
-    <div class="confirm-actions">
+  <div class="modal-box">
+    <h3 id="confirmTitle">Remove this account?</h3>
+    <p id="confirmText">This will move the account to the bin. It will auto-delete in 180 days.</p>
+    <div class="modal-actions">
       <button class="btn btn-ghost" id="confirmCancel">Cancel</button>
-      <button class="btn btn-danger" id="confirmDelete">Remove</button>
+      <button class="btn btn-danger" id="confirmDelete">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="statsOverlay">
+  <div class="modal-box">
+    <h3><i class="fas fa-chart-pie"></i> Vault Storage System</h3>
+    <p>Current device storage statistics.</p>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-val" id="statAccounts">0</div>
+        <div class="stat-label">Total Accounts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="statSize">0 KB</div>
+        <div class="stat-label">Encrypted Data</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="statBackupSize">0 KB</div>
+        <div class="stat-label">Backup Size</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="statBackupDate" style="font-size:14px;">Never</div>
+        <div class="stat-label">Last Backup</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="closeStats" style="width:100%">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="conflictOverlay">
+  <div class="modal-box">
+    <h3><i class="fas fa-code-compare"></i> Backup Conflict Detected</h3>
+    <p id="conflictText">Cloud data differs from local data.</p>
+    <div class="modal-actions" style="flex-direction:column; gap:8px;">
+      <button class="btn btn-primary" id="conflictMerge">Merge Both (Recommended)</button>
+      <button class="btn btn-ghost" id="conflictLocal">Keep Local Only</button>
+      <button class="btn btn-ghost" id="conflictCloud">Keep Cloud Only</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="editOverlay">
+  <div class="modal-box" style="max-width:400px;">
+    <h3><i class="fas fa-pen"></i> Edit Account</h3>
+    <div class="field" style="margin-top:0;">
+      <label>Account name</label>
+      <div class="field-input-wrap">
+        <i class="fas fa-user"></i>
+        <input type="text" id="editName" autocomplete="off">
+      </div>
+    </div>
+    <div class="field">
+      <label>Secret key</label>
+      <div class="field-input-wrap">
+        <i class="fas fa-key"></i>
+        <input type="text" id="editSecret" autocomplete="off" spellcheck="false">
+      </div>
+    </div>
+    <div class="field">
+      <label>Tags (comma separated)</label>
+      <div class="field-input-wrap">
+        <i class="fas fa-hashtag"></i>
+        <input type="text" id="editTags" autocomplete="off">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="closeEdit">Cancel</button>
+      <button class="btn btn-primary" id="saveEdit">Save Changes</button>
     </div>
   </div>
 </div>
@@ -406,10 +539,12 @@
   "use strict";
 
   const STORAGE_KEY = 'vaultkey_accounts_v1';
+  const BACKUP_META_KEY = 'vaultkey_backup_meta';
   const PERIOD = 30;
   const RADIUS = 22;
   const CIRC = 2 * Math.PI * RADIUS;
   const AVATAR_COLORS = ['#7b6ef6','#3ed6b5','#f5a623','#ff5d6c','#5aa9ff','#c66ef6'];
+  const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
   const els = {
     addPanel: document.getElementById('addPanel'),
@@ -418,6 +553,7 @@
     secretField: document.getElementById('secretField'),
     accName: document.getElementById('accName'),
     accSecret: document.getElementById('accSecret'),
+    accTags: document.getElementById('accTags'),
     addBtn: document.getElementById('addBtn'),
     searchWrap: document.getElementById('searchWrap'),
     searchInput: document.getElementById('searchInput'),
@@ -425,6 +561,9 @@
     accountCount: document.getElementById('accountCount'),
     accountsList: document.getElementById('accountsList'),
     emptyState: document.getElementById('emptyState'),
+    emptyTitle: document.getElementById('emptyTitle'),
+    emptyDesc: document.getElementById('emptyDesc'),
+    emptyIcon: document.getElementById('emptyIcon'),
     toast: document.getElementById('toast'),
     toastText: document.getElementById('toastText'),
     exportBtn: document.getElementById('exportBtn'),
@@ -434,26 +573,68 @@
     confirmDelete: document.getElementById('confirmDelete'),
     confirmCancel: document.getElementById('confirmCancel'),
     syncDriveBtn: document.getElementById('syncDriveBtn'),
+    statsBtn: document.getElementById('statsBtn'),
+    statsOverlay: document.getElementById('statsOverlay'),
+    closeStats: document.getElementById('closeStats'),
+    editOverlay: document.getElementById('editOverlay'),
+    editName: document.getElementById('editName'),
+    editSecret: document.getElementById('editSecret'),
+    editTags: document.getElementById('editTags'),
+    closeEdit: document.getElementById('closeEdit'),
+    saveEdit: document.getElementById('saveEdit'),
+    conflictOverlay: document.getElementById('conflictOverlay'),
+    conflictText: document.getElementById('conflictText'),
+    conflictMerge: document.getElementById('conflictMerge'),
+    conflictLocal: document.getElementById('conflictLocal'),
+    conflictCloud: document.getElementById('conflictCloud'),
   };
 
   let accounts = loadAccounts();
-  let pendingDeleteId = null;
+  let currentView = 'active'; // 'active', 'archived', 'binned'
+  let pendingActionId = null;
+  let pendingActionType = null;
   let tickHandle = null;
+  let draggedCard = null;
+
+  // Auto-clean Bin (Feature 6: 180 Days)
+  checkBinExpirations();
 
   // ---------- storage ----------
   function loadAccounts(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
+      let parsed = raw ? JSON.parse(raw) : [];
+      // Migration for old structure
+      parsed = parsed.map((a, i) => ({
+        ...a,
+        status: a.status || 'active',
+        tags: a.tags || [],
+        order: a.order !== undefined ? a.order : i
+      }));
+      return parsed.sort((a,b) => a.order - b.order);
     }catch(e){ return []; }
   }
   function saveAccounts(){
+    // re-assign order
+    accounts.forEach((a, i) => a.order = i);
     try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts)); }catch(e){}
+  }
+  
+  function getBackupMeta() {
+    try { return JSON.parse(localStorage.getItem(BACKUP_META_KEY) || '{"date":"Never","size":0}'); }
+    catch(e){ return {date:"Never",size:0}; }
+  }
+  function saveBackupMeta(size) {
+    const meta = { date: 'Today', size: size };
+    localStorage.setItem(BACKUP_META_KEY, JSON.stringify(meta));
   }
 
   // ---------- helpers ----------
   function cleanSecret(s){ return s.replace(/\s+/g,'').toUpperCase(); }
   function isValidBase32(s){ return /^[A-Z2-7]+=*$/.test(s) && s.length >= 8; }
+  function isDuplicate(secret, excludeId = null) {
+    return accounts.some(a => a.secret === secret && a.id !== excludeId && a.status !== 'binned');
+  }
 
   function initialsFor(name){
     const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -473,20 +654,43 @@
     }catch(e){ return null; }
   }
 
+  // Feature 6: Bin Auto Delete
+  function checkBinExpirations() {
+    const now = Date.now();
+    let changed = false;
+    accounts = accounts.filter(a => {
+      if (a.status === 'binned' && a.deletedAt) {
+        const daysPassed = (now - a.deletedAt) / MS_PER_DAY;
+        if (daysPassed >= 180) { changed = true; return false; }
+      }
+      return true;
+    });
+    if (changed) saveAccounts();
+  }
+
   // ---------- toast ----------
   let toastTimer = null;
-  function showToast(text, danger){
+  function showToast(text, type = 'success'){ // type: success, danger, warning
     els.toastText.textContent = text;
-    els.toast.classList.toggle('toast-danger', !!danger);
-    els.toast.querySelector('i').className = danger ? 'fas fa-triangle-exclamation' : 'fas fa-check-circle';
-    els.toast.classList.add('show');
+    els.toast.className = 'toast show';
+    if (type !== 'success') els.toast.classList.add(`toast-${type}`);
+    els.toast.querySelector('i').className = type === 'danger' ? 'fas fa-triangle-exclamation' : (type === 'warning' ? 'fas fa-circle-exclamation' : 'fas fa-check-circle');
+    
     clearTimeout(toastTimer);
     toastTimer = setTimeout(()=> els.toast.classList.remove('show'), 2600);
   }
 
-  // ---------- add-panel collapse ----------
-  els.addPanelHead.addEventListener('click', ()=>{
-    els.addPanel.classList.toggle('open');
+  // ---------- UI toggles ----------
+  els.addPanelHead.addEventListener('click', ()=> els.addPanel.classList.toggle('open'));
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      currentView = e.target.dataset.view;
+      els.searchInput.value = '';
+      render();
+    });
   });
 
   // ---------- validation ----------
@@ -498,9 +702,11 @@
   els.accName.addEventListener('input', ()=>clearFieldError(els.nameField));
   els.accSecret.addEventListener('input', ()=>clearFieldError(els.secretField));
 
+  // Add Account (with Feature 3: Duplicate Detector & Feature 2: Tags)
   function tryAdd(){
     const name = els.accName.value.trim();
     const secretClean = cleanSecret(els.accSecret.value);
+    const tags = els.accTags.value.split(',').map(t=>t.trim()).filter(Boolean);
     let ok = true;
 
     if(!name){ setFieldError(els.nameField); ok = false; } else { clearFieldError(els.nameField); }
@@ -514,50 +720,108 @@
     } else if(generateCode(secretClean) === null){
       setFieldError(els.secretField, "Couldn't read this secret key.");
       ok = false;
+    } else if (isDuplicate(secretClean)) {
+      setFieldError(els.secretField, "Duplicate detected: This secret is already in your vault.");
+      ok = false;
     } else {
       clearFieldError(els.secretField);
     }
 
     if(!ok) return;
 
-    accounts.push({ id: uid(), name, secret: secretClean });
+    accounts.push({ id: uid(), name, secret: secretClean, tags, status: 'active' });
     saveAccounts();
-    els.accName.value = '';
-    els.accSecret.value = '';
+    
+    els.accName.value = ''; els.accSecret.value = ''; els.accTags.value = '';
     els.addPanel.classList.remove('open');
     showToast('Account added');
-    render();
+    
+    // Switch to active view if not already
+    document.querySelector('.tab-btn[data-view="active"]').click();
     autoSyncIfConnected();
   }
 
   els.addBtn.addEventListener('click', tryAdd);
-  [els.accName, els.accSecret].forEach(inp=>{
+  [els.accName, els.accSecret, els.accTags].forEach(inp=>{
     inp.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); tryAdd(); } });
   });
 
   // ---------- search ----------
   els.searchInput.addEventListener('input', render);
 
-  // ---------- delete ----------
-  function openConfirm(id, name){
-    pendingDeleteId = id;
-    document.getElementById('confirmText').textContent =
-      `This will delete "${name}" and its secret key from this device. This can't be undone.`;
+  // ---------- Confirmation actions ----------
+  function openConfirm(id, type, name){
+    pendingActionId = id;
+    pendingActionType = type;
+    if(type === 'bin') {
+      document.getElementById('confirmTitle').textContent = 'Move to Bin?';
+      document.getElementById('confirmText').textContent = `"${name}" will be moved to the bin and auto-deleted after 180 days.`;
+      els.confirmDelete.textContent = 'Move to Bin';
+      els.confirmDelete.className = 'btn btn-warning';
+    } else if (type === 'delete') {
+      document.getElementById('confirmTitle').textContent = 'Permanently Delete?';
+      document.getElementById('confirmText').textContent = `"${name}" will be permanently removed. This cannot be undone.`;
+      els.confirmDelete.textContent = 'Delete Forever';
+      els.confirmDelete.className = 'btn btn-danger';
+    }
     els.confirmOverlay.classList.add('show');
   }
-  function closeConfirm(){ els.confirmOverlay.classList.remove('show'); pendingDeleteId = null; }
+  
+  function closeConfirm(){ els.confirmOverlay.classList.remove('show'); pendingActionId = null; }
   els.confirmCancel.addEventListener('click', closeConfirm);
   els.confirmOverlay.addEventListener('click', e=>{ if(e.target === els.confirmOverlay) closeConfirm(); });
+  
   els.confirmDelete.addEventListener('click', ()=>{
-    if(pendingDeleteId){
-      const acc = accounts.find(a=>a.id === pendingDeleteId);
-      accounts = accounts.filter(a=>a.id !== pendingDeleteId);
-      saveAccounts();
-      showToast(acc ? `Removed "${acc.name}"` : 'Account removed');
-      render();
-      autoSyncIfConnected();
+    if(pendingActionId){
+      const accIndex = accounts.findIndex(a=>a.id === pendingActionId);
+      if(accIndex !== -1) {
+        if (pendingActionType === 'bin') {
+          accounts[accIndex].status = 'binned';
+          accounts[accIndex].deletedAt = Date.now();
+          showToast('Moved to bin');
+        } else if (pendingActionType === 'delete') {
+          accounts.splice(accIndex, 1);
+          showToast('Account deleted permanently', 'warning');
+        }
+        saveAccounts();
+        render();
+        autoSyncIfConnected();
+      }
     }
     closeConfirm();
+  });
+
+  // ---------- Feature 5: Edit Account ----------
+  let editingId = null;
+  function openEdit(id) {
+    const acc = accounts.find(a => a.id === id);
+    if(!acc) return;
+    editingId = id;
+    els.editName.value = acc.name;
+    els.editSecret.value = acc.secret;
+    els.editTags.value = acc.tags.join(', ');
+    els.editOverlay.classList.add('show');
+  }
+  
+  els.closeEdit.addEventListener('click', () => { els.editOverlay.classList.remove('show'); editingId = null; });
+  els.saveEdit.addEventListener('click', () => {
+    if(!editingId) return;
+    const name = els.editName.value.trim();
+    const secretClean = cleanSecret(els.editSecret.value);
+    const tags = els.editTags.value.split(',').map(t=>t.trim()).filter(Boolean);
+    
+    if(!name || !secretClean || !isValidBase32(secretClean) || isDuplicate(secretClean, editingId)){
+      showToast('Invalid data or duplicate secret', 'danger');
+      return;
+    }
+    
+    const acc = accounts.find(a => a.id === editingId);
+    acc.name = name; acc.secret = secretClean; acc.tags = tags;
+    saveAccounts();
+    els.editOverlay.classList.remove('show');
+    showToast('Changes saved');
+    render();
+    autoSyncIfConnected();
   });
 
   // ---------- copy ----------
@@ -580,13 +844,29 @@
     const ta = document.createElement('textarea');
     ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
     document.body.appendChild(ta); ta.select();
-    try{ document.execCommand('copy'); done(); }catch(e){ showToast('Copy failed', true); }
+    try{ document.execCommand('copy'); done(); }catch(e){ showToast('Copy failed', 'danger'); }
     document.body.removeChild(ta);
   }
 
+  // ---------- Feature 1: Stats Modal ----------
+  els.statsBtn.addEventListener('click', () => {
+    const rawData = localStorage.getItem(STORAGE_KEY) || '[]';
+    const kbSize = (new Blob([rawData]).size / 1024).toFixed(2);
+    
+    document.getElementById('statAccounts').textContent = accounts.length;
+    document.getElementById('statSize').textContent = kbSize + ' KB';
+    
+    const meta = getBackupMeta();
+    document.getElementById('statBackupSize').textContent = meta.size + ' KB';
+    document.getElementById('statBackupDate').textContent = meta.date;
+
+    els.statsOverlay.classList.add('show');
+  });
+  els.closeStats.addEventListener('click', () => els.statsOverlay.classList.remove('show'));
+
   // ---------- export / import ----------
   els.exportBtn.addEventListener('click', ()=>{
-    if(accounts.length === 0){ showToast('Nothing to export', true); return; }
+    if(accounts.length === 0){ showToast('Nothing to export', 'danger'); return; }
     const blob = new Blob([JSON.stringify(accounts, null, 2)], { type:'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -594,6 +874,8 @@
     a.href = url; a.download = `vaultkey-backup-${randomSuffix}.json`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    
+    saveBackupMeta((blob.size / 1024).toFixed(2));
     showToast('Backup downloaded');
   });
 
@@ -609,36 +891,97 @@
         let added = 0;
         parsed.forEach(item=>{
           if(item && item.name && item.secret && isValidBase32(cleanSecret(item.secret))){
-            accounts.push({ 
-              id: uid(), 
-              name: String(item.name), 
-              secret: cleanSecret(item.secret),
-              color: item.color 
-            });
-            added++;
+            if (!isDuplicate(cleanSecret(item.secret))) {
+              accounts.push({ 
+                id: uid(), 
+                name: String(item.name), 
+                secret: cleanSecret(item.secret),
+                color: item.color,
+                tags: item.tags || [],
+                status: item.status || 'active',
+                order: accounts.length
+              });
+              added++;
+            }
           }
         });
         saveAccounts();
         render();
-        showToast(added ? `Imported ${added} account(s)` : 'No valid accounts found', added===0);
+        showToast(added ? `Imported ${added} new account(s)` : 'No new accounts added', added===0 ? 'warning' : 'success');
         autoSyncIfConnected();
       }catch(err){
-        showToast('Could not read that backup file', true);
+        showToast('Could not read that backup file', 'danger');
       }
       els.importFile.value = '';
     };
     reader.readAsText(file);
   });
 
+  // ---------- Feature 8: Drag and Drop Reordering ----------
+  function handleDragStart(e) {
+    if(els.searchInput.value) return; // Disable drag during search
+    draggedCard = this;
+    setTimeout(() => this.classList.add('dragging'), 0);
+    e.dataTransfer.effectAllowed = 'move';
+  }
+  function handleDragOver(e) {
+    e.preventDefault();
+    if (!draggedCard || this === draggedCard || els.searchInput.value) return;
+    this.classList.add('drag-over');
+  }
+  function handleDragLeave() { this.classList.remove('drag-over'); }
+  function handleDrop(e) {
+    e.preventDefault();
+    this.classList.remove('drag-over');
+    if (!draggedCard || this === draggedCard || els.searchInput.value) return;
+    
+    const allCards = [...els.accountsList.querySelectorAll('.account-card')];
+    const fromIndex = allCards.indexOf(draggedCard);
+    const toIndex = allCards.indexOf(this);
+    
+    // Update DOM order visually
+    if(fromIndex < toIndex) this.after(draggedCard);
+    else this.before(draggedCard);
+
+    // Update Array logic
+    const draggedId = draggedCard.dataset.id;
+    const dropTargetId = this.dataset.id;
+    
+    const fromArrIdx = accounts.findIndex(a => a.id === draggedId);
+    const toArrIdx = accounts.findIndex(a => a.id === dropTargetId);
+    
+    const [moved] = accounts.splice(fromArrIdx, 1);
+    accounts.splice(toArrIdx, 0, moved);
+    
+    saveAccounts();
+  }
+  function handleDragEnd() { this.classList.remove('dragging'); draggedCard = null; }
+
   // ---------- render ----------
   function render(){
     const query = els.searchInput.value.trim().toLowerCase();
-    const filtered = accounts.filter(a=> a.name.toLowerCase().includes(query));
+    
+    // Filter by view state
+    let filtered = accounts.filter(a => a.status === currentView);
+    // Feature 9: Total Keys per view
+    const viewCount = filtered.length;
+    
+    if(query) {
+      filtered = filtered.filter(a => a.name.toLowerCase().includes(query) || a.tags.some(t => t.toLowerCase().includes(query)));
+    }
 
-    els.searchWrap.style.display = accounts.length ? 'block' : 'none';
-    els.toolbar.style.display = accounts.length ? 'flex' : 'none';
-    els.accountCount.textContent = `${accounts.length} account${accounts.length===1?'':'s'}`;
-    els.emptyState.style.display = accounts.length ? 'none' : 'flex';
+    els.searchWrap.style.display = viewCount ? 'block' : 'none';
+    els.toolbar.style.display = viewCount ? 'flex' : 'none';
+    els.accountCount.textContent = `${viewCount} ${currentView === 'active' ? 'active keys' : currentView + ' accounts'}`;
+    
+    if(viewCount === 0) {
+       els.emptyState.style.display = 'flex';
+       els.emptyTitle.textContent = currentView === 'active' ? 'No accounts yet' : (currentView === 'archived' ? 'Archive is empty' : 'Bin is empty');
+       els.emptyDesc.textContent = currentView === 'active' ? 'Add a secret key above to start.' : '';
+       els.emptyIcon.innerHTML = currentView === 'archived' ? '<i class="fas fa-box-archive"></i>' : (currentView === 'binned' ? '<i class="fas fa-trash"></i>' : '<i class="fas fa-vault"></i>');
+    } else {
+       els.emptyState.style.display = 'none';
+    }
 
     els.accountsList.innerHTML = '';
     filtered.forEach(acc=>{
@@ -651,40 +994,90 @@
     const card = document.createElement('div');
     card.className = 'account-card';
     card.dataset.id = acc.id;
+    
+    // Only draggable in active view and not searching
+    if(currentView === 'active' && !els.searchInput.value) {
+      card.draggable = true;
+      card.addEventListener('dragstart', handleDragStart);
+      card.addEventListener('dragover', handleDragOver);
+      card.addEventListener('dragleave', handleDragLeave);
+      card.addEventListener('drop', handleDrop);
+      card.addEventListener('dragend', handleDragEnd);
+    }
 
     if (!acc.color) {
       acc.color = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
       saveAccounts();
     }
-    const color = acc.color;
+
+    let tagsHtml = '';
+    if(acc.tags && acc.tags.length > 0) {
+      tagsHtml = `<div class="tag-list">` + acc.tags.map(t => `<span class="tag-item">#${escapeHtml(t)}</span>`).join('') + `</div>`;
+    }
+
+    let binHtml = '';
+    if (acc.status === 'binned' && acc.deletedAt) {
+        const daysPassed = (Date.now() - acc.deletedAt) / MS_PER_DAY;
+        const daysLeft = Math.max(0, 180 - Math.floor(daysPassed));
+        binHtml = `<div class="bin-countdown">Auto-delete in ${daysLeft}d</div>`;
+    }
+
+    let actionButtons = '';
+    if (currentView === 'active') {
+      actionButtons = `
+        <button class="mini-btn" data-role="copy" title="Copy code"><i class="fas fa-copy"></i></button>
+        <button class="mini-btn" data-role="edit" title="Edit account"><i class="fas fa-pen"></i></button>
+        <button class="mini-btn" data-role="archive" title="Archive"><i class="fas fa-box-archive"></i></button>
+        <button class="mini-btn warning" data-role="bin" title="Move to Bin"><i class="fas fa-trash"></i></button>
+      `;
+    } else if (currentView === 'archived') {
+      actionButtons = `
+        <button class="mini-btn" data-role="unarchive" title="Unarchive"><i class="fas fa-box-open"></i></button>
+        <button class="mini-btn warning" data-role="bin" title="Move to Bin"><i class="fas fa-trash"></i></button>
+      `;
+    } else if (currentView === 'binned') {
+      actionButtons = `
+        <button class="mini-btn" data-role="restore" title="Restore"><i class="fas fa-trash-can-arrow-up"></i></button>
+        <button class="mini-btn delete" data-role="hard-delete" title="Delete Forever"><i class="fas fa-xmark"></i></button>
+      `;
+    }
 
     card.innerHTML = `
       <div class="ring-wrap">
         <svg viewBox="0 0 52 52">
           <circle class="ring-track" cx="26" cy="26" r="${RADIUS}"></circle>
-          <circle class="ring-fill" cx="26" cy="26" r="${RADIUS}"
-            stroke-dasharray="${CIRC}" stroke-dashoffset="0"></circle>
+          <circle class="ring-fill" cx="26" cy="26" r="${RADIUS}" stroke-dasharray="${CIRC}" stroke-dashoffset="0"></circle>
         </svg>
-        <div class="ring-avatar" style="background:${color};">${initialsFor(acc.name)}</div>
+        <div class="ring-avatar" style="background:${acc.color};">${initialsFor(acc.name)}</div>
       </div>
       <div class="account-body">
         <div class="account-name-wrap">
           <div class="account-name">${escapeHtml(acc.name)}</div>
           <div class="account-timer" data-role="timer"></div>
         </div>
+        ${tagsHtml}
+        ${binHtml}
         <div class="account-code" data-role="code">------</div>
       </div>
-      <div class="account-actions">
-        <button class="mini-btn" data-role="copy" title="Copy code"><i class="fas fa-copy"></i></button>
-        <button class="mini-btn delete" data-role="delete" title="Remove account"><i class="fas fa-trash"></i></button>
-      </div>
+      <div class="account-actions">${actionButtons}</div>
     `;
 
-    card.querySelector('[data-role="delete"]').addEventListener('click', ()=> openConfirm(acc.id, acc.name));
-    card.querySelector('[data-role="copy"]').addEventListener('click', function(){
+    // Bind specific actions
+    const bindBtn = (role, fn) => {
+      const btn = card.querySelector(`[data-role="${role}"]`);
+      if(btn) btn.addEventListener('click', fn);
+    };
+
+    bindBtn('copy', function(){
       const codeEl = card.querySelector('[data-role="code"]');
       if(!codeEl.classList.contains('invalid-text')) copyCode(codeEl.textContent, this);
     });
+    bindBtn('edit', () => openEdit(acc.id));
+    bindBtn('archive', () => { acc.status = 'archived'; saveAccounts(); render(); showToast('Archived'); });
+    bindBtn('unarchive', () => { acc.status = 'active'; saveAccounts(); render(); showToast('Moved to Main'); });
+    bindBtn('restore', () => { acc.status = 'active'; delete acc.deletedAt; saveAccounts(); render(); showToast('Restored from Bin'); });
+    bindBtn('bin', () => openConfirm(acc.id, 'bin', acc.name));
+    bindBtn('hard-delete', () => openConfirm(acc.id, 'delete', acc.name));
 
     return card;
   }
@@ -706,10 +1099,20 @@
     document.querySelectorAll('.account-card').forEach(card=>{
       const acc = accounts.find(a=>a.id === card.dataset.id);
       if(!acc) return;
+      
       const codeEl = card.querySelector('[data-role="code"]');
       const timerEl = card.querySelector('[data-role="timer"]');
       const ringFill = card.querySelector('.ring-fill');
       const ringWrap = card.querySelector('.ring-wrap');
+
+      // Obscure code if not in active view
+      if(currentView !== 'active') {
+        codeEl.textContent = '••••••';
+        timerEl.textContent = '';
+        ringFill.style.strokeDashoffset = 0;
+        ringFill.style.stroke = 'var(--border-soft)';
+        return;
+      }
 
       const code = generateCode(acc.secret);
       if(code === null){
@@ -741,20 +1144,19 @@
     }, msToNextSecond);
   }
 
-  // ---------- Google Drive Sync (Two-Way) ----------
+  // ---------- Google Drive Sync (Feature 4: Conflict Check) ----------
   const CLIENT_ID = '1031078395082-bcda093r3dnj6skso43gtrtnid1aslqs.apps.googleusercontent.com';
   const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
   let tokenClient;
+  let driveDataCache = null;
 
   function initializeGis() {
       tokenClient = google.accounts.oauth2.initTokenClient({
           client_id: CLIENT_ID,
           scope: SCOPES,
           callback: async (response) => {
-              if (response.error !== undefined) {
-                  throw (response);
-              }
-              await syncWithDrive();
+              if (response.error !== undefined) throw (response);
+              await startSyncProcess();
           },
       });
   }
@@ -764,33 +1166,27 @@
           gapi.load('client', () => {
               gapi.client.init({
                   discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
-              }).then(() => {
-                  initializeGis();
-              });
+              }).then(() => initializeGis());
           });
       }
   });
 
   els.syncDriveBtn.addEventListener('click', () => {
       if (typeof google === 'undefined' || !tokenClient) {
-          showToast('Google API not loaded yet', true);
-          return;
+          showToast('Google API not loaded yet', 'danger'); return;
       }
-      if (gapi.client.getToken() === null) {
-          tokenClient.requestAccessToken({prompt: 'consent'});
-      } else {
-          tokenClient.requestAccessToken({prompt: ''});
-      }
+      if (gapi.client.getToken() === null) tokenClient.requestAccessToken({prompt: 'consent'});
+      else tokenClient.requestAccessToken({prompt: ''});
   });
 
   function autoSyncIfConnected() {
       if (typeof gapi !== 'undefined' && gapi.client && gapi.client.getToken() !== null) {
-          syncWithDrive();
+          startSyncProcess(true); // silent auto-sync overrides conflicts by merging usually, but let's keep it safe.
       }
   }
 
-  async function syncWithDrive() {
-      showToast('Syncing with Drive...');
+  async function startSyncProcess(isAuto = false) {
+      if(!isAuto) showToast('Connecting to Drive...');
       const accessToken = gapi.client.getToken().access_token;
       const headers = { 'Authorization': 'Bearer ' + accessToken };
 
@@ -804,44 +1200,59 @@
 
           if (fileId) {
               const fileRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { headers });
-              if (fileRes.ok) {
-                  driveAccounts = await fileRes.json();
-              }
+              if (fileRes.ok) driveAccounts = await fileRes.json();
           }
 
-          let localAccounts = loadAccounts();
-          let mergedMap = new Map();
+          driveDataCache = { accounts: driveAccounts, fileId: fileId, files: files };
 
-          if (Array.isArray(driveAccounts)) {
-              driveAccounts.forEach(acc => {
-                  if (acc && acc.secret) mergedMap.set(acc.secret, acc);
-              });
+          // Conflict detection
+          if (!isAuto && driveAccounts.length > 0 && accounts.length > 0 && driveAccounts.length !== accounts.length) {
+              els.conflictText.innerHTML = `Local: <strong>${accounts.length} accounts</strong><br>Cloud: <strong>${driveAccounts.length} accounts</strong>`;
+              els.conflictOverlay.classList.add('show');
+          } else {
+              executeSync('merge'); // Default silent sync
           }
-          
-          if (Array.isArray(localAccounts)) {
-              localAccounts.forEach(acc => {
-                  if (acc && acc.secret) mergedMap.set(acc.secret, acc);
+      } catch (error) {
+          showToast('Sync check failed.', 'danger');
+      }
+  }
+
+  // Conflict Resolution Buttons
+  els.conflictMerge.addEventListener('click', () => { els.conflictOverlay.classList.remove('show'); executeSync('merge'); });
+  els.conflictLocal.addEventListener('click', () => { els.conflictOverlay.classList.remove('show'); executeSync('local'); });
+  els.conflictCloud.addEventListener('click', () => { els.conflictOverlay.classList.remove('show'); executeSync('cloud'); });
+
+  async function executeSync(resolution) {
+      if(!driveDataCache) return;
+      const accessToken = gapi.client.getToken().access_token;
+      const headers = { 'Authorization': 'Bearer ' + accessToken };
+      
+      let mergedMap = new Map();
+      
+      if (resolution === 'merge') {
+          driveDataCache.accounts.forEach(acc => { if (acc && acc.secret) mergedMap.set(acc.secret, acc); });
+          accounts.forEach(acc => { if (acc && acc.secret) mergedMap.set(acc.secret, acc); });
+          accounts = Array.from(mergedMap.values());
+      } else if (resolution === 'cloud') {
+          accounts = driveDataCache.accounts;
+      } // If 'local', we just upload current 'accounts'
+
+      saveAccounts();
+      render();
+
+      const blobStr = JSON.stringify(accounts);
+      const fileContent = new Blob([blobStr], {type: 'application/json'});
+      saveBackupMeta((fileContent.size / 1024).toFixed(2)); // Update stats
+
+      try {
+          if (driveDataCache.fileId) {
+              await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveDataCache.fileId}?uploadType=media`, {
+                  method: 'PATCH', headers: headers, body: fileContent
               });
-          }
-
-          const mergedAccounts = Array.from(mergedMap.values());
-          
-          accounts = mergedAccounts;
-          saveAccounts();
-          render();
-
-          const fileContent = new Blob([JSON.stringify(mergedAccounts)], {type: 'application/json'});
-
-          if (fileId) {
-              await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
-                  method: 'PATCH',
-                  headers: headers,
-                  body: fileContent
-              });
-
-              if (files.length > 1) {
-                  for (let i = 1; i < files.length; i++) {
-                      fetch(`https://www.googleapis.com/drive/v3/files/${files[i].id}`, { method: 'DELETE', headers });
+              // Clean up duplicates in drive
+              if (driveDataCache.files.length > 1) {
+                  for (let i = 1; i < driveDataCache.files.length; i++) {
+                      fetch(`https://www.googleapis.com/drive/v3/files/${driveDataCache.files[i].id}`, { method: 'DELETE', headers });
                   }
               }
           } else {
@@ -851,16 +1262,12 @@
               form.append('file', fileContent);
 
               await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-                  method: 'POST',
-                  headers: headers,
-                  body: form
+                  method: 'POST', headers: headers, body: form
               });
           }
-          
           showToast('Sync successful!');
-      } catch (error) {
-          console.error('Error during sync:', error);
-          showToast('Sync failed. Check console.', true);
+      } catch (err) {
+          showToast('Sync upload failed.', 'danger');
       }
   }
 
