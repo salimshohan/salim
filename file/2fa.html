@@ -99,7 +99,6 @@
   .btn-primary{ width:100%;padding:13px;margin-top:18px; background:linear-gradient(140deg,var(--accent),#5a4de0); color:#fff;box-shadow:0 8px 20px rgba(123,110,246,.28); }
   .btn-primary:hover{box-shadow:0 10px 24px rgba(123,110,246,.4);transform:translateY(-1px);}
   
-  /* Improved Ghost/Cancel Button */
   .btn-ghost{ background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text); padding: 13px 14px; font-size: 14.5px; }
   .btn-ghost:hover{ background: rgba(255,255,255,0.08); border-color: var(--text-faint); transform:translateY(-1px); }
   
@@ -154,8 +153,13 @@
   .card-enter { animation: slideInCard 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
   .card-exit { opacity: 0 !important; transform: scale(0.9) translateY(-10px) !important; pointer-events: none; margin-top: -80px; margin-bottom: 0; padding-top: 0; padding-bottom: 0; height: 0; overflow: hidden; border: none; }
 
-  @keyframes codeUpdateAnim { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
-  .code-animate { animation: codeUpdateAnim 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+  /* Beautiful Code Change Animation */
+  @keyframes codeUpdateAnim { 
+    0% { opacity: 0.3; transform: translateY(-6px) scale(0.98); filter: blur(2px); color: var(--mint); } 
+    50% { opacity: 1; transform: translateY(1px) scale(1.02); filter: blur(0); }
+    100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); color: var(--text); } 
+  }
+  .code-animate { animation: codeUpdateAnim 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
   /* Top Section */
   .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
@@ -213,14 +217,14 @@
   /* ---------- Modals / Overlays ---------- */
   .toast{
     position:fixed;bottom:26px;left:50%; transform:translateX(-50%) translateY(100px); background:var(--surface-2); border:1px solid var(--border);
-    color:var(--text); padding:12px 20px;border-radius:30px; font-size:13.5px;font-weight:600; display:flex;align-items:center;gap:9px; box-shadow:0 12px 30px rgba(0,0,0,.4); transition:transform .4s cubic-bezier(.2,.9,.25,1.3); z-index:2000;
+    color:var(--text); padding:12px 20px;border-radius:30px; font-size:13.5px;font-weight:600; display:flex;align-items:center;gap:9px; box-shadow:0 12px 30px rgba(0,0,0,.4); transition:transform .4s cubic-bezier(.2,.9,.25,1.3); z-index:3000;
   }
   .toast.show{transform:translateX(-50%) translateY(0);}
   .toast i{color:var(--mint);} .toast.toast-danger i{color:var(--danger);} .toast.toast-warning i{color:var(--amber);}
 
   .overlay{ position:fixed;inset:0;background:rgba(5,7,18,.6);backdrop-filter:blur(3px); display:flex;align-items:center;justify-content:center;padding:20px; opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:1100; }
   .overlay.show{opacity:1;pointer-events:auto;}
-  .modal-box{ background:var(--surface);border:1px solid var(--border);border-radius:16px; padding:24px;max-width:400px;width:100%; max-height: 90vh; overflow-y: auto; transform:translateY(14px) scale(.97);transition:transform .25s cubic-bezier(.2,.8,.2,1); }
+  .modal-box{ position: relative; background:var(--surface);border:1px solid var(--border);border-radius:16px; padding:24px;max-width:420px;width:100%; max-height: 90vh; overflow-y: auto; transform:translateY(14px) scale(.97);transition:transform .25s cubic-bezier(.2,.8,.2,1); }
   .overlay.show .modal-box{transform:translateY(0) scale(1);}
   .modal-box h3{font-family:var(--font-display);font-size:17px;margin-bottom:8px; display:flex; align-items:center; gap:10px;}
   .modal-box h3 i { color: var(--accent); }
@@ -228,15 +232,23 @@
   .modal-actions{display:flex;gap:10px; margin-top: 22px;}
   .modal-actions .btn{flex:1;}
 
-  /* --- Icon Picker Modal (Highest Z-index Fix) --- */
+  /* Top Right Close Button */
+  .modal-close-btn {
+    position: absolute; top: 20px; right: 20px; background: var(--surface-2); border: 1px solid var(--border-soft);
+    color: var(--text-muted); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px; transition: all 0.2s ease;
+  }
+  .modal-close-btn:hover { background: rgba(255, 93, 108, 0.1); color: var(--danger); border-color: rgba(255, 93, 108, 0.3); transform: scale(1.05); }
+
+  /* --- Icon Picker Modal (Z-index Fix & Zoomed Icons) --- */
   #iconPickerOverlay { z-index: 1200; }
-  .icon-picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 10px; max-height: 300px; overflow-y: auto; padding: 4px; margin-top: 14px; }
+  .icon-picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 12px; max-height: 340px; overflow-y: auto; padding: 4px; margin-top: 14px; }
   .icon-option { 
-    height: 46px; background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: 12px;
-    display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: all 0.15s;
+    height: 64px; background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 36px; cursor: pointer; transition: all 0.15s;
   }
   .icon-option:hover { background: var(--surface-2); border-color: var(--accent); transform: scale(1.05); }
-  .icon-picker-search { width: 100%; background: var(--bg-2); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 10px; font-size: 13.5px; outline: none; margin-bottom: 10px;}
+  .icon-picker-search { width: 100%; background: var(--bg-2); border: 1px solid var(--border); color: var(--text); padding: 12px 14px; border-radius: 10px; font-size: 14.5px; outline: none; margin-bottom: 10px;}
   .icon-picker-search:focus { border-color: var(--accent); }
 
   /* --- Advanced Analytics Dashboard --- */
@@ -265,7 +277,6 @@
   .meta-info span { color: var(--text-muted); font-family: var(--font-mono); }
   input[type="file"]{display:none;}
 
-  @keyframes riseIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
   @media (prefers-reduced-motion: reduce){ *{animation-duration:.001s !important;transition-duration:.001s !important;} }
   @media (max-width:380px){ .account-code{font-size:22px;} .card-bottom {justify-content: center;} }
 </style>
@@ -368,23 +379,21 @@
 <!-- Icon Picker Modal -->
 <div class="overlay" id="iconPickerOverlay">
   <div class="modal-box" style="max-width: 440px;">
+    <button class="modal-close-btn" id="closeIconPicker" title="Close"><i class="fas fa-xmark"></i></button>
     <h3><i class="fas fa-icons"></i> Choose Icon</h3>
     <input type="text" class="icon-picker-search" id="iconSearchInput" placeholder="Search brands or utilities..." autocomplete="off">
     <div class="icon-picker-grid" id="iconGrid"></div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" id="closeIconPicker" style="width: 100%;">Cancel Selection</button>
-    </div>
   </div>
 </div>
 
 <!-- Confirm Modal -->
 <div class="overlay" id="confirmOverlay">
   <div class="modal-box">
+    <button class="modal-close-btn" id="closeConfirm" title="Close"><i class="fas fa-xmark"></i></button>
     <h3 id="confirmTitle"><i class="fas fa-triangle-exclamation"></i> Remove account?</h3>
     <p id="confirmText">This will move the account to the bin. It will auto-delete in 180 days.</p>
     <div class="modal-actions">
-      <button class="btn btn-ghost" id="confirmCancel">Cancel</button>
-      <button class="btn btn-danger" id="confirmDelete">Confirm</button>
+      <button class="btn btn-danger" id="confirmDelete" style="width:100%">Confirm</button>
     </div>
   </div>
 </div>
@@ -392,6 +401,7 @@
 <!-- Advanced Analytics Dashboard -->
 <div class="overlay" id="statsOverlay">
   <div class="modal-box" style="max-width:480px;">
+    <button class="modal-close-btn" id="closeStats" title="Close"><i class="fas fa-xmark"></i></button>
     <h3><i class="fas fa-chart-line"></i> Vault Analytics</h3>
     <p style="margin-bottom: 20px;">Comprehensive overview of your security health and usage.</p>
     
@@ -440,16 +450,13 @@
     <div class="meta-info" style="text-align: center; margin-top: 20px;">
       Last Cloud Backup: <span id="statBackupDate">Never</span>
     </div>
-    
-    <div class="modal-actions">
-      <button class="btn btn-ghost" id="closeStats" style="width:100%">Close Dashboard</button>
-    </div>
   </div>
 </div>
 
 <!-- Conflict Modal -->
 <div class="overlay" id="conflictOverlay">
   <div class="modal-box">
+    <button class="modal-close-btn" id="closeConflict" title="Close"><i class="fas fa-xmark"></i></button>
     <h3><i class="fas fa-code-compare"></i> Backup Conflict Detected</h3>
     <p id="conflictText">Cloud data differs from local data.</p>
     <div class="modal-actions" style="flex-direction:column; gap:8px;">
@@ -463,6 +470,7 @@
 <!-- Edit Modal -->
 <div class="overlay" id="editOverlay">
   <div class="modal-box" style="max-width:400px;">
+    <button class="modal-close-btn" id="closeEdit" title="Close"><i class="fas fa-xmark"></i></button>
     <h3><i class="fas fa-pen-to-square"></i> Edit Account</h3>
     <p>Update credentials, icon, and tags.</p>
     <div class="field" style="margin-top:0;">
@@ -482,8 +490,7 @@
     </div>
     <div class="meta-info" id="editMetaInfo"></div>
     <div class="modal-actions">
-      <button class="btn btn-ghost" id="closeEdit">Cancel</button>
-      <button class="btn btn-primary" id="saveEdit">Save Changes</button>
+      <button class="btn btn-primary" id="saveEdit" style="width: 100%">Save Changes</button>
     </div>
   </div>
 </div>
@@ -504,6 +511,7 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const CLIENT_ID = '1031078395082-bcda093r3dnj6skso43gtrtnid1aslqs.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
 
+// Expanded library of 150+ brands, tools, and generic icons
 const ICONS = [
   // Top Giants & Social
   { n: 'Google', c: 'fab fa-google', col: '#ea4335' }, { n: 'Facebook / Meta', c: 'fab fa-facebook', col: '#1877f2' },
@@ -516,35 +524,41 @@ const ICONS = [
   { n: 'Twitch', c: 'fab fa-twitch', col: '#9146ff' }, { n: 'Discord', c: 'fab fa-discord', col: '#5865f2' },
   { n: 'Pinterest', c: 'fab fa-pinterest', col: '#bd081c' }, { n: 'Tumblr', c: 'fab fa-tumblr', col: '#35465c' },
   { n: 'Vimeo', c: 'fab fa-vimeo', col: '#1ab7ea' }, { n: 'Line', c: 'fab fa-line', col: '#00c300' },
-  { n: 'Viber', c: 'fab fa-viber', col: '#665cac' }, { n: 'WeChat', c: 'fab fa-weixin', col: '#7bb32e' },
+  { n: 'WeChat', c: 'fab fa-weixin', col: '#7bb32e' }, { n: 'Yahoo', c: 'fab fa-yahoo', col: '#410093' },
+  { n: 'Yandex', c: 'fab fa-yandex', col: '#ff0000' },
+  // AI, Developer, Cloud & Code
+  { n: 'AI / ChatGPT', c: 'fas fa-brain', col: '#10a37f' }, { n: 'GitHub', c: 'fab fa-github', col: '#ffffff' }, 
+  { n: 'GitLab', c: 'fab fa-gitlab', col: '#e24329' }, { n: 'Bitbucket', c: 'fab fa-bitbucket', col: '#0052cc' }, 
+  { n: 'AWS', c: 'fab fa-aws', col: '#ff9900' }, { n: 'DigitalOcean', c: 'fab fa-digital-ocean', col: '#0080ff' }, 
+  { n: 'Cloudflare', c: 'fab fa-cloudflare', col: '#f38020' }, { n: 'Docker', c: 'fab fa-docker', col: '#2496ed' }, 
+  { n: 'NPM', c: 'fab fa-npm', col: '#cb3837' }, { n: 'React', c: 'fab fa-react', col: '#61dafb' }, 
+  { n: 'Vue', c: 'fab fa-vuejs', col: '#4fc08d' }, { n: 'Angular', c: 'fab fa-angular', col: '#dd0031' }, 
+  { n: 'Node.js', c: 'fab fa-node-js', col: '#339933' }, { n: 'Python', c: 'fab fa-python', col: '#3776ab' }, 
+  { n: 'Java', c: 'fab fa-java', col: '#ed8b00' }, { n: 'PHP', c: 'fab fa-php', col: '#777bb4' }, 
+  { n: 'Swift', c: 'fab fa-swift', col: '#f05138' }, { n: 'Ubuntu', c: 'fab fa-ubuntu', col: '#e95420' }, 
+  { n: 'Linux', c: 'fab fa-linux', col: '#fdfb23' }, { n: 'Centos', c: 'fab fa-centos', col: '#262577' }, 
+  { n: 'Fedora', c: 'fab fa-fedora', col: '#294172' }, { n: 'Android', c: 'fab fa-android', col: '#a4c639' }, 
+  { n: 'App Store', c: 'fab fa-app-store', col: '#0070c9' }, { n: 'Google Play', c: 'fab fa-google-play', col: '#41cc00' },
+  { n: 'Database', c: 'fas fa-database', col: '#3ecf8e' }, { n: 'Vercel / Up', c: 'fas fa-caret-up', col: '#ffffff' },
   // Crypto & Finance
   { n: 'Bitcoin', c: 'fab fa-btc', col: '#f7931a' }, { n: 'Ethereum', c: 'fab fa-ethereum', col: '#627eea' },
   { n: 'PayPal', c: 'fab fa-paypal', col: '#003087' }, { n: 'Stripe', c: 'fab fa-stripe', col: '#008cdd' },
   { n: 'Visa', c: 'fab fa-cc-visa', col: '#1a1f71' }, { n: 'Mastercard', c: 'fab fa-cc-mastercard', col: '#eb001b' },
-  // Developer, Cloud & Code
-  { n: 'GitHub', c: 'fab fa-github', col: '#ffffff' }, { n: 'GitLab', c: 'fab fa-gitlab', col: '#e24329' },
-  { n: 'Bitbucket', c: 'fab fa-bitbucket', col: '#0052cc' }, { n: 'AWS', c: 'fab fa-aws', col: '#ff9900' },
-  { n: 'DigitalOcean', c: 'fab fa-digital-ocean', col: '#0080ff' }, { n: 'Cloudflare', c: 'fab fa-cloudflare', col: '#f38020' },
-  { n: 'Docker', c: 'fab fa-docker', col: '#2496ed' }, { n: 'NPM', c: 'fab fa-npm', col: '#cb3837' },
-  { n: 'React', c: 'fab fa-react', col: '#61dafb' }, { n: 'Vue', c: 'fab fa-vuejs', col: '#4fc08d' },
-  { n: 'Angular', c: 'fab fa-angular', col: '#dd0031' }, { n: 'Node.js', c: 'fab fa-node-js', col: '#339933' },
-  { n: 'Python', c: 'fab fa-python', col: '#3776ab' }, { n: 'Java', c: 'fab fa-java', col: '#ed8b00' },
-  { n: 'PHP', c: 'fab fa-php', col: '#777bb4' }, { n: 'Swift', c: 'fab fa-swift', col: '#f05138' },
-  { n: 'Ubuntu', c: 'fab fa-ubuntu', col: '#e95420' }, { n: 'Linux', c: 'fab fa-linux', col: '#fdfb23' },
-  { n: 'Centos', c: 'fab fa-centos', col: '#262577' }, { n: 'Fedora', c: 'fab fa-fedora', col: '#294172' },
-  { n: 'Android', c: 'fab fa-android', col: '#a4c639' }, { n: 'App Store', c: 'fab fa-app-store', col: '#0070c9' },
-  { n: 'Google Play', c: 'fab fa-google-play', col: '#41cc00' },
+  { n: 'Google Pay', c: 'fab fa-google-pay', col: '#4285f4' },
   // Work, Design & Productivity
   { n: 'Slack', c: 'fab fa-slack', col: '#e01e5a' }, { n: 'Trello', c: 'fab fa-trello', col: '#0052cc' },
   { n: 'Jira', c: 'fab fa-jira', col: '#0052cc' }, { n: 'Figma', c: 'fab fa-figma', col: '#f24e1e' },
   { n: 'Dropbox', c: 'fab fa-dropbox', col: '#0061ff' }, { n: 'Evernote', c: 'fab fa-evernote', col: '#00a82d' },
   { n: 'WordPress', c: 'fab fa-wordpress', col: '#21759b' }, { n: 'Shopify', c: 'fab fa-shopify', col: '#95bf47' },
-  { n: 'Skype', c: 'fab fa-skype', col: '#00aff0' },
+  { n: 'Skype', c: 'fab fa-skype', col: '#00aff0' }, { n: 'Notion / Cube', c: 'fas fa-cube', col: '#ffffff' },
+  { n: 'Canva / Palette', c: 'fas fa-palette', col: '#00c4cc' }, { n: 'Zoom / Video', c: 'fas fa-video', col: '#2d8cff' },
+  { n: 'Google Drive', c: 'fab fa-google-drive', col: '#4285f4' }, { n: 'Salesforce', c: 'fab fa-salesforce', col: '#00a1e0' },
+  { n: 'Mailchimp', c: 'fab fa-mailchimp', col: '#ffe01b' }, { n: 'Confluence', c: 'fab fa-confluence', col: '#172b4d' },
   // Entertainment & Gaming
   { n: 'Spotify', c: 'fab fa-spotify', col: '#1db954' }, { n: 'SoundCloud', c: 'fab fa-soundcloud', col: '#ff5500' },
   { n: 'Apple Music', c: 'fab fa-itunes', col: '#fb52bf' }, { n: 'Steam', c: 'fab fa-steam', col: '#171a21' },
   { n: 'PlayStation', c: 'fab fa-playstation', col: '#003791' }, { n: 'Xbox', c: 'fab fa-xbox', col: '#107c10' },
-  { n: 'Unity', c: 'fab fa-unity', col: '#ffffff' },
+  { n: 'Unity', c: 'fab fa-unity', col: '#ffffff' }, { n: 'Patreon', c: 'fab fa-patreon', col: '#ff424d' },
   // Generic / Utilities
   { n: 'Generic Shield', c: 'fas fa-shield-halved', col: '#7b6ef6' }, { n: 'Email / Mail', c: 'fas fa-envelope', col: '#3ed6b5' },
   { n: 'User Account', c: 'fas fa-user-shield', col: '#f5a623' }, { n: 'Server / Host', c: 'fas fa-server', col: '#5aa9ff' },
@@ -572,7 +586,7 @@ const els = {
   toast: document.getElementById('toast'), toastText: document.getElementById('toastText'),
   exportBtn: document.getElementById('exportBtn'), importBtn: document.getElementById('importBtn'),
   importFile: document.getElementById('importFile'), confirmOverlay: document.getElementById('confirmOverlay'),
-  confirmDelete: document.getElementById('confirmDelete'), confirmCancel: document.getElementById('confirmCancel'),
+  confirmDelete: document.getElementById('confirmDelete'), closeConfirm: document.getElementById('closeConfirm'),
   syncDriveBtn: document.getElementById('syncDriveBtn'), statsBtn: document.getElementById('statsBtn'),
   statsOverlay: document.getElementById('statsOverlay'), closeStats: document.getElementById('closeStats'),
   editOverlay: document.getElementById('editOverlay'), editName: document.getElementById('editName'),
@@ -581,7 +595,8 @@ const els = {
   saveEdit: document.getElementById('saveEdit'), conflictOverlay: document.getElementById('conflictOverlay'),
   conflictText: document.getElementById('conflictText'), conflictMerge: document.getElementById('conflictMerge'),
   conflictLocal: document.getElementById('conflictLocal'), conflictCloud: document.getElementById('conflictCloud'),
-  installBtn: document.getElementById('installBtn'), pwaManifest: document.getElementById('pwaManifest')
+  closeConflict: document.getElementById('closeConflict'), installBtn: document.getElementById('installBtn'), 
+  pwaManifest: document.getElementById('pwaManifest')
 };
 
 let accounts = loadAccounts();
@@ -622,7 +637,8 @@ els.addBtn.addEventListener('click', tryAdd);
 els.searchInput.addEventListener('input', render);
 els.sortSelect.addEventListener('change', render);
 
-els.confirmCancel.addEventListener('click', closeConfirm);
+// Bind Close (X) buttons mapped to Modals
+els.closeConfirm.addEventListener('click', closeConfirm);
 els.confirmOverlay.addEventListener('click', e=>{ if(e.target === els.confirmOverlay) closeConfirm(); });
 els.confirmDelete.addEventListener('click', handleConfirmDelete);
 
@@ -631,6 +647,7 @@ els.saveEdit.addEventListener('click', handleSaveEdit);
 
 els.statsBtn.addEventListener('click', openAnalytics);
 els.closeStats.addEventListener('click', () => els.statsOverlay.classList.remove('show'));
+els.closeConflict.addEventListener('click', () => els.conflictOverlay.classList.remove('show'));
 
 els.addIconBtn.addEventListener('click', () => openIconPicker('add'));
 els.editIconBtn.addEventListener('click', () => openIconPicker('edit'));
@@ -666,7 +683,6 @@ function setupPWA() {
   const manifestBlob = new Blob([JSON.stringify(manifestJSON)], {type: 'application/manifest+json'});
   els.pwaManifest.href = URL.createObjectURL(manifestBlob);
 
-  // Generate an empty Service Worker to pass Chrome's strict PWA install requirement
   if ('serviceWorker' in navigator) {
     const swBlob = new Blob([`self.addEventListener('fetch', function(e) {});`], {type: 'application/javascript'});
     navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
@@ -785,7 +801,6 @@ function tryAdd(){
   els.addPanel.classList.remove('open'); document.querySelector('.tab-btn[data-view="active"]').click();
   showToast('Account added'); autoSyncIfConnected();
   
-  // Apply enter animation to latest element added in render
   setTimeout(() => {
     const cards = document.querySelectorAll('.account-card');
     if (cards.length) cards[cards.length - 1].classList.add('card-enter');
@@ -1093,8 +1108,8 @@ function tickAll(){
       const formatted = code.slice(0,3) + ' ' + code.slice(3);
       if (codeEl.dataset.raw !== formatted) {
         codeEl.dataset.raw = formatted; codeEl.textContent = formatted;
-        codeEl.classList.remove('code-animate'); void codeEl.offsetWidth; // Trigger reflow
-        codeEl.classList.add('code-animate'); // Execute CSS animation
+        codeEl.classList.remove('code-animate'); void codeEl.offsetWidth; 
+        codeEl.classList.add('code-animate'); 
       }
       codeEl.classList.remove('invalid-text'); card.classList.remove('invalid');
       if(timerEl) { timerEl.style.display = 'flex'; timerEl.querySelector('span').textContent = countDown + 's'; timerEl.classList.toggle('urgent', urgent); }
