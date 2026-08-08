@@ -7,7 +7,7 @@
 <link id="pwaManifest" rel="manifest" href="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/otpauth/9.3.1/otpauth.umd.min.js"></script>
 <style>
   :root{
@@ -48,9 +48,8 @@
   .nav-sub{font-size:11px;color:var(--text-faint);font-weight:500;letter-spacing:.3px;}
 
   .icon-btn{
-    background:var(--surface); border:1px solid var(--border-soft);
-    color:var(--text-muted); width:38px;height:38px;border-radius:10px;
-    display:flex;align-items:center;justify-content:center;
+    background:var(--surface); border:1px solid var(--border-soft); color:var(--text-muted); 
+    width:38px;height:38px;border-radius:10px; display:flex;align-items:center;justify-content:center;
     cursor:pointer;font-size:14px; transition:all .18s ease;
   }
   .icon-btn:hover{color:var(--text);border-color:var(--accent);transform:translateY(-1px);}
@@ -75,13 +74,20 @@
 
   .field{margin-top:14px;}
   .field label{ display:block;font-size:11.5px;font-weight:600;color:var(--text-muted); margin-bottom:7px;letter-spacing:.3px;text-transform:uppercase; }
-  .field-input-wrap{position:relative;}
-  .field-input-wrap i{ position:absolute;left:14px;top:50%;transform:translateY(-50%); color:var(--text-faint);font-size:14px; }
-  .field input{
-    width:100%; background:var(--bg-2); border:1.5px solid var(--border); color:var(--text);
-    padding:12px 14px 12px 40px; border-radius:11px; font-size:14.5px; font-family:var(--font-body); outline:none; transition:border-color .18s ease, box-shadow .18s ease;
+  .field-input-wrap{position:relative; display: flex; gap: 8px;}
+  .field-icon-picker {
+    width: 44px; height: 44px; flex-shrink: 0; background: var(--bg-2); border: 1.5px solid var(--border);
+    border-radius: 11px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+    font-size: 18px; color: var(--text-muted); transition: all 0.2s;
   }
-  .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3.5px var(--accent-soft);}
+  .field-icon-picker:hover { border-color: var(--accent); color: var(--text); }
+  .input-with-icon { position: relative; flex: 1; }
+  .input-with-icon i { position:absolute;left:14px;top:50%;transform:translateY(-50%); color:var(--text-faint);font-size:14px; }
+  .input-with-icon input {
+    width:100%; background:var(--bg-2); border:1.5px solid var(--border); color:var(--text);
+    padding:12px 14px 12px 40px; border-radius:11px; font-size:14.5px; font-family:var(--font-body); outline:none; transition:all .18s ease;
+  }
+  .input-with-icon input:focus{border-color:var(--accent);box-shadow:0 0 0 3.5px var(--accent-soft);}
   .field.has-error input{border-color:var(--danger);box-shadow:0 0 0 3.5px rgba(255,93,108,.16);}
   .field-error{ font-size:12px;color:var(--danger);margin-top:6px;font-weight:500; display:none;align-items:center;gap:6px; }
   .field.has-error .field-error{display:flex;}
@@ -128,7 +134,7 @@
   }
   .section-title i { color: var(--text-faint); }
 
-  /* ---------- Improved Accounts List & Cards ---------- */
+  /* ---------- Accounts List & Cards ---------- */
   .accounts-list{display:flex;flex-direction:column;gap:14px; min-height: 100px;}
   
   .account-card{
@@ -141,7 +147,7 @@
   .account-card.dragging{ opacity: 0.5; border: 2px dashed var(--accent); transform: scale(0.98); }
   .account-card.drag-over{ border-top: 3px solid var(--accent); }
   
-  /* Top Section (Info) */
+  /* Top Section */
   .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
   .card-meta { display: flex; align-items: flex-start; gap: 14px; flex: 1; min-width: 0; }
   
@@ -149,12 +155,12 @@
   .ring-wrap svg{width:48px;height:48px;transform:rotate(-90deg);}
   .ring-track{fill:none;stroke:var(--border);stroke-width:3.5;}
   .ring-fill{ fill:none;stroke:var(--mint);stroke-width:3.5;stroke-linecap:round; transition: stroke .3s ease; }
-  .ring-avatar{ position:absolute;inset:0;display:flex;align-items:center;justify-content:center; font-family:var(--font-display);font-weight:700;font-size:14px;color:#fff; border-radius:50%; }
+  .ring-avatar{ position:absolute;inset:0;display:flex;align-items:center;justify-content:center; font-size:20px;color:#fff; border-radius:50%; }
+  .ring-avatar.is-text { font-family:var(--font-display); font-weight:700; font-size:14px; }
 
   .account-name-wrap{ display:flex;flex-direction:column;gap:6px; min-width:0; padding-top: 2px;}
   .account-name{ font-size:15.5px;font-weight:600;color:var(--text); word-break: break-word; line-height: 1.3;}
   
-  /* New Tag System */
   .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
   .tag-item { 
     font-size: 10px; background: var(--accent-soft); border: 1px solid transparent; 
@@ -163,7 +169,6 @@
   }
   .tag-item:hover { color: #fff; background: var(--accent); box-shadow: 0 2px 8px rgba(123,110,246,0.4); }
 
-  /* Timer Pill */
   .timer-pill {
     background: var(--bg-2); border: 1px solid var(--border-soft); color: var(--text-muted);
     font-size: 11.5px; font-weight: 600; padding: 5px 10px; border-radius: 20px;
@@ -173,16 +178,12 @@
   .timer-pill.urgent { color: var(--danger); border-color: rgba(255,93,108,.3); background: rgba(255,93,108,.1); }
   .bin-countdown { font-size: 11.5px; font-weight: 600; color: var(--danger); background: rgba(255,93,108,.1); padding: 5px 10px; border-radius: 20px; }
 
-  /* Bottom Section (Code & Actions) */
+  /* Bottom Section */
   .card-bottom {
     display: flex; align-items: center; justify-content: space-between; 
-    background: var(--bg-2); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border-soft);
-    gap: 12px; flex-wrap: wrap;
+    background: var(--bg-2); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border-soft); gap: 12px; flex-wrap: wrap;
   }
-  .account-code{
-    font-family:var(--font-mono); font-weight:700; font-size:26px; letter-spacing:3px;
-    color:var(--text); white-space: nowrap; 
-  }
+  .account-code{ font-family:var(--font-mono); font-weight:700; font-size:26px; letter-spacing:3px; color:var(--text); white-space: nowrap; }
   .account-code.invalid-text{font-size:14px;color:var(--danger);font-family:var(--font-body);letter-spacing:0;font-weight:500;}
 
   .account-actions{display:flex;align-items:center;gap:8px;}
@@ -199,17 +200,17 @@
   .empty-state p{font-size:13px;max-width:280px;line-height:1.5;}
   .footer-note{ text-align:center;font-size:12px;color:var(--text-faint); display:flex;align-items:center;justify-content:center;gap:7px; margin-top:4px; }
 
-  /* ---------- Modals ---------- */
+  /* ---------- Modals / Overlays ---------- */
   .toast{
     position:fixed;bottom:26px;left:50%; transform:translateX(-50%) translateY(100px); background:var(--surface-2); border:1px solid var(--border);
-    color:var(--text); padding:12px 20px;border-radius:30px; font-size:13.5px;font-weight:600; display:flex;align-items:center;gap:9px; box-shadow:0 12px 30px rgba(0,0,0,.4); transition:transform .4s cubic-bezier(.2,.9,.25,1.3); z-index:1000;
+    color:var(--text); padding:12px 20px;border-radius:30px; font-size:13.5px;font-weight:600; display:flex;align-items:center;gap:9px; box-shadow:0 12px 30px rgba(0,0,0,.4); transition:transform .4s cubic-bezier(.2,.9,.25,1.3); z-index:2000;
   }
   .toast.show{transform:translateX(-50%) translateY(0);}
   .toast i{color:var(--mint);} .toast.toast-danger i{color:var(--danger);} .toast.toast-warning i{color:var(--amber);}
 
   .overlay{ position:fixed;inset:0;background:rgba(5,7,18,.6);backdrop-filter:blur(3px); display:flex;align-items:center;justify-content:center;padding:20px; opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:1100; }
   .overlay.show{opacity:1;pointer-events:auto;}
-  .modal-box{ background:var(--surface);border:1px solid var(--border);border-radius:16px; padding:24px;max-width:360px;width:100%; transform:translateY(14px) scale(.97);transition:transform .25s cubic-bezier(.2,.8,.2,1); }
+  .modal-box{ background:var(--surface);border:1px solid var(--border);border-radius:16px; padding:24px;max-width:400px;width:100%; max-height: 90vh; overflow-y: auto; transform:translateY(14px) scale(.97);transition:transform .25s cubic-bezier(.2,.8,.2,1); }
   .overlay.show .modal-box{transform:translateY(0) scale(1);}
   .modal-box h3{font-family:var(--font-display);font-size:17px;margin-bottom:8px; display:flex; align-items:center; gap:10px;}
   .modal-box h3 i { color: var(--accent); }
@@ -218,10 +219,39 @@
   .modal-actions .btn{flex:1;padding:12px;}
   .btn-danger{background:var(--danger);color:#fff;} .btn-danger:hover{box-shadow:0 8px 18px rgba(255,93,108,.32);}
 
-  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
-  .stat-card { background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: 12px; padding: 14px; text-align: center; }
-  .stat-val { font-size: 18px; font-weight: 700; color: var(--text); font-family: var(--font-mono); }
-  .stat-label { font-size: 11px; color: var(--text-faint); text-transform: uppercase; margin-top: 4px; letter-spacing: 0.5px;}
+  /* --- Advanced Analytics Dashboard --- */
+  .dash-section { margin-bottom: 20px; }
+  .dash-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .dash-card { background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; justify-content: center; }
+  .dash-val { font-size: 20px; font-weight: 700; color: var(--text); font-family: var(--font-mono); line-height: 1.2; }
+  .dash-label { font-size: 11.5px; color: var(--text-faint); margin-top: 4px; }
+  
+  .progress-wrap { background: var(--surface-2); border-radius: 8px; height: 8px; width: 100%; overflow: hidden; margin: 10px 0 6px; }
+  .progress-bar { background: var(--mint); height: 100%; border-radius: 8px; width: 0%; transition: width 1s ease; }
+  
+  .top-list { display: flex; flex-direction: column; gap: 8px; }
+  .top-item { background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+  .top-item-name { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--text); }
+  .top-item-name i { color: var(--accent); font-size: 16px; width: 20px; text-align: center; }
+  .top-item-count { font-family: var(--font-mono); color: var(--text-muted); font-size: 12px; }
+
+  /* --- Icon Picker Modal --- */
+  .icon-picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 10px; max-height: 300px; overflow-y: auto; padding: 4px; margin-top: 14px; }
+  .icon-option { 
+    height: 46px; background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: all 0.15s;
+  }
+  .icon-option:hover { background: var(--surface-2); border-color: var(--accent); transform: scale(1.05); }
+  .icon-option.selected { border-color: var(--mint); background: rgba(62,214,181,.1); color: var(--mint) !important; }
+  .icon-picker-search { width: 100%; background: var(--bg-2); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 10px; font-size: 13.5px; outline: none; margin-bottom: 10px;}
+  .icon-picker-search:focus { border-color: var(--accent); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
 
   .meta-info { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border-soft); font-size: 11.5px; color: var(--text-faint); line-height: 1.6; }
   .meta-info span { color: var(--text-muted); font-family: var(--font-mono); }
@@ -261,16 +291,19 @@
     <div class="add-form">
       <div class="add-form-inner">
         <div class="field" id="nameField">
-          <label>Account name</label>
+          <label>Account name & Icon</label>
           <div class="field-input-wrap">
-            <i class="fas fa-user"></i>
-            <input type="text" id="accName" placeholder="e.g. Gmail — salim@..." autocomplete="off">
+            <div class="field-icon-picker" id="addIconBtn" title="Select Icon"><i class="fas fa-shield-halved"></i></div>
+            <div class="input-with-icon">
+              <i class="fas fa-user"></i>
+              <input type="text" id="accName" placeholder="e.g. Google — salim@..." autocomplete="off">
+            </div>
           </div>
           <div class="field-error"><i class="fas fa-circle-exclamation"></i><span>Give this account a name.</span></div>
         </div>
         <div class="field" id="secretField">
           <label>Secret key</label>
-          <div class="field-input-wrap">
+          <div class="input-with-icon">
             <i class="fas fa-key"></i>
             <input type="text" id="accSecret" placeholder="e.g. JBSWY3DPEHPK3PXP" autocomplete="off" spellcheck="false">
           </div>
@@ -278,7 +311,7 @@
         </div>
         <div class="field" id="tagsField">
           <label>Tags (comma separated)</label>
-          <div class="field-input-wrap">
+          <div class="input-with-icon">
             <i class="fas fa-hashtag"></i>
             <input type="text" id="accTags" placeholder="e.g. work, email, personal" autocomplete="off">
           </div>
@@ -324,7 +357,19 @@
 
 <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastText">Copied</span></div>
 
-<!-- Modals -->
+<!-- Icon Picker Modal -->
+<div class="overlay" id="iconPickerOverlay">
+  <div class="modal-box" style="max-width: 440px;">
+    <h3><i class="fas fa-icons"></i> Choose Icon</h3>
+    <input type="text" class="icon-picker-search" id="iconSearchInput" placeholder="Search brands or utilities..." autocomplete="off">
+    <div class="icon-picker-grid" id="iconGrid"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="closeIconPicker" style="width: 100%;">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
 <div class="overlay" id="confirmOverlay">
   <div class="modal-box">
     <h3 id="confirmTitle"><i class="fas fa-triangle-exclamation"></i> Remove account?</h3>
@@ -336,23 +381,67 @@
   </div>
 </div>
 
+<!-- Advanced Analytics Dashboard -->
 <div class="overlay" id="statsOverlay">
-  <div class="modal-box">
-    <h3><i class="fas fa-chart-pie"></i> Analytics Dashboard</h3>
-    <p>Usage & Vault Statistics.</p>
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-val" id="statAccounts">0</div><div class="stat-label">Total Accounts</div></div>
-      <div class="stat-card"><div class="stat-val" id="statTotalCopies">0</div><div class="stat-label">Total Copies</div></div>
-      <div class="stat-card"><div class="stat-val" id="statSize">0 KB</div><div class="stat-label">Vault Size</div></div>
-      <div class="stat-card"><div class="stat-val" id="statBackupDate" style="font-size:14px;">Never</div><div class="stat-label">Last Backup</div></div>
+  <div class="modal-box" style="max-width:480px;">
+    <h3><i class="fas fa-chart-line"></i> Vault Analytics</h3>
+    <p style="margin-bottom: 20px;">Comprehensive overview of your security health and usage.</p>
+    
+    <div class="dash-section">
+      <div class="dash-title">Vault Health & Storage</div>
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="dash-val" id="statStoragePercent">0%</div>
+          <div class="dash-label">Local Capacity Used</div>
+          <div class="progress-wrap"><div class="progress-bar" id="statStorageBar"></div></div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-val" id="statSize">0 KB</div>
+          <div class="dash-label">Encrypted Data Size</div>
+        </div>
+      </div>
     </div>
-    <div class="meta-info" id="mostCopiedText" style="text-align: center; border: none; padding: 0;"></div>
+
+    <div class="dash-section">
+      <div class="dash-title">Activity Overview</div>
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="dash-val" id="statTotalAccounts">0</div>
+          <div class="dash-label">Total Accounts</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-val" id="statTotalCopies">0</div>
+          <div class="dash-label">Total Copies Generated</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-val" id="statNew30Days">0</div>
+          <div class="dash-label">Added Last 30 Days</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-val" id="statVaultAge">0 Days</div>
+          <div class="dash-label">Vault Age</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-section" style="margin-bottom: 0;">
+      <div class="dash-title">Most Active Accounts</div>
+      <div class="top-list" id="statTopList">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <div class="meta-info" style="text-align: center; margin-top: 20px;">
+      Last Cloud Backup: <span id="statBackupDate">Never</span>
+    </div>
+    
     <div class="modal-actions">
       <button class="btn btn-ghost" id="closeStats" style="width:100%">Close Dashboard</button>
     </div>
   </div>
 </div>
 
+<!-- Conflict Modal -->
 <div class="overlay" id="conflictOverlay">
   <div class="modal-box">
     <h3><i class="fas fa-code-compare"></i> Backup Conflict Detected</h3>
@@ -365,21 +454,25 @@
   </div>
 </div>
 
+<!-- Edit Modal -->
 <div class="overlay" id="editOverlay">
   <div class="modal-box" style="max-width:400px;">
     <h3><i class="fas fa-pen-to-square"></i> Edit Account</h3>
-    <p>Update credentials and tags for this account.</p>
+    <p>Update credentials, icon, and tags.</p>
     <div class="field" style="margin-top:0;">
-      <label>Account name</label>
-      <div class="field-input-wrap"><i class="fas fa-user"></i><input type="text" id="editName" autocomplete="off"></div>
+      <label>Account name & Icon</label>
+      <div class="field-input-wrap">
+        <div class="field-icon-picker" id="editIconBtn" title="Select Icon"><i class="fas fa-shield-halved"></i></div>
+        <div class="input-with-icon"><i class="fas fa-user"></i><input type="text" id="editName" autocomplete="off"></div>
+      </div>
     </div>
     <div class="field">
       <label>Secret key</label>
-      <div class="field-input-wrap"><i class="fas fa-key"></i><input type="text" id="editSecret" autocomplete="off" spellcheck="false"></div>
+      <div class="input-with-icon"><i class="fas fa-key"></i><input type="text" id="editSecret" autocomplete="off" spellcheck="false"></div>
     </div>
     <div class="field">
       <label>Tags (comma separated)</label>
-      <div class="field-input-wrap"><i class="fas fa-hashtag"></i><input type="text" id="editTags" autocomplete="off"></div>
+      <div class="input-with-icon"><i class="fas fa-hashtag"></i><input type="text" id="editTags" autocomplete="off"></div>
     </div>
     <div class="meta-info" id="editMetaInfo"></div>
     <div class="modal-actions">
@@ -393,25 +486,60 @@
 <script src="https://apis.google.com/js/api.js"></script>
 <script>
 // ==========================================
-// 1. STATE & CONSTANTS
+// 1. STATE, CONSTANTS & ICON DB
 // ==========================================
 "use strict";
 
 const STORAGE_KEY = 'vaultkey_accounts_v1';
 const BACKUP_META_KEY = 'vaultkey_backup_meta';
-const PERIOD = 30;
-const RADIUS = 22;
-const CIRC = 2 * Math.PI * RADIUS;
+const PERIOD = 30; const RADIUS = 22; const CIRC = 2 * Math.PI * RADIUS;
 const AVATAR_COLORS = ['#7b6ef6','#3ed6b5','#f5a623','#ff5d6c','#5aa9ff','#c66ef6'];
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const CLIENT_ID = '1031078395082-bcda093r3dnj6skso43gtrtnid1aslqs.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
+
+const ICONS = [
+  // User's known frequent platforms & Tech Giants
+  { n: 'Google', c: 'fab fa-google', col: '#ea4335' }, { n: 'Facebook / Meta', c: 'fab fa-facebook', col: '#1877f2' },
+  { n: 'Amazon', c: 'fab fa-amazon', col: '#ff9900' }, { n: 'WordPress', c: 'fab fa-wordpress', col: '#21759b' },
+  { n: 'X (Twitter)', c: 'fab fa-x-twitter', col: '#ffffff' }, { n: 'GitHub', c: 'fab fa-github', col: '#ffffff' },
+  { n: 'Binance / Crypto', c: 'fab fa-btc', col: '#f7931a' }, { n: 'Ethereum', c: 'fab fa-ethereum', col: '#627eea' },
+  // General Tech / Social
+  { n: 'Apple', c: 'fab fa-apple', col: '#ffffff' }, { n: 'Microsoft', c: 'fab fa-microsoft', col: '#00a4ef' },
+  { n: 'Instagram', c: 'fab fa-instagram', col: '#e1306c' }, { n: 'LinkedIn', c: 'fab fa-linkedin', col: '#0a66c2' },
+  { n: 'Discord', c: 'fab fa-discord', col: '#5865f2' }, { n: 'Twitch', c: 'fab fa-twitch', col: '#9146ff' },
+  { n: 'Reddit', c: 'fab fa-reddit', col: '#ff4500' }, { n: 'YouTube', c: 'fab fa-youtube', col: '#ff0000' },
+  { n: 'WhatsApp', c: 'fab fa-whatsapp', col: '#25d366' }, { n: 'Telegram', c: 'fab fa-telegram', col: '#229ed9' },
+  { n: 'Snapchat', c: 'fab fa-snapchat', col: '#fffc00' }, { n: 'TikTok', c: 'fab fa-tiktok', col: '#00f2fe' },
+  { n: 'Slack', c: 'fab fa-slack', col: '#e01e5a' }, { n: 'Dropbox', c: 'fab fa-dropbox', col: '#0061ff' },
+  { n: 'Figma', c: 'fab fa-figma', col: '#f24e1e' }, { n: 'Trello', c: 'fab fa-trello', col: '#0052cc' },
+  { n: 'Jira', c: 'fab fa-jira', col: '#0052cc' }, { n: 'PayPal', c: 'fab fa-paypal', col: '#003087' },
+  { n: 'Stripe', c: 'fab fa-stripe', col: '#008cdd' }, { n: 'Shopify', c: 'fab fa-shopify', col: '#95bf47' },
+  { n: 'Spotify', c: 'fab fa-spotify', col: '#1db954' }, { n: 'Steam', c: 'fab fa-steam', col: '#171a21' },
+  { n: 'PlayStation', c: 'fab fa-playstation', col: '#003791' }, { n: 'Xbox', c: 'fab fa-xbox', col: '#107c10' },
+  { n: 'AWS', c: 'fab fa-aws', col: '#ff9900' }, { n: 'DigitalOcean', c: 'fab fa-digital-ocean', col: '#0080ff' },
+  { n: 'Cloudflare', c: 'fab fa-cloudflare', col: '#f38020' }, { n: 'GitLab', c: 'fab fa-gitlab', col: '#e24329' },
+  { n: 'Bitbucket', c: 'fab fa-bitbucket', col: '#0052cc' }, { n: 'Docker', c: 'fab fa-docker', col: '#2496ed' },
+  { n: 'Npm', c: 'fab fa-npm', col: '#cb3837' }, { n: 'Python', c: 'fab fa-python', col: '#3776ab' },
+  { n: 'Node.js', c: 'fab fa-node-js', col: '#339933' }, { n: 'React', c: 'fab fa-react', col: '#61dafb' },
+  // Generic / Utilities
+  { n: 'Generic Shield', c: 'fas fa-shield-halved', col: '#7b6ef6' }, { n: 'Email / Mail', c: 'fas fa-envelope', col: '#3ed6b5' },
+  { n: 'User Account', c: 'fas fa-user-shield', col: '#f5a623' }, { n: 'Server / Host', c: 'fas fa-server', col: '#5aa9ff' },
+  { n: 'Cloud Storage', c: 'fas fa-cloud', col: '#5aa9ff' }, { n: 'Bank / Finance', c: 'fas fa-building-columns', col: '#ff5d6c' },
+  { n: 'Wallet', c: 'fas fa-wallet', col: '#f5a623' }, { n: 'Key', c: 'fas fa-key', col: '#c66ef6' },
+  { n: 'Lock', c: 'fas fa-lock', col: '#7b6ef6' }, { n: 'Game', c: 'fas fa-gamepad', col: '#ff5d6c' },
+  { n: 'Briefcase / Work', c: 'fas fa-briefcase', col: '#c66ef6' }, { n: 'Mobile App', c: 'fas fa-mobile-screen-button', col: '#3ed6b5' },
+  { n: 'Shopping Cart', c: 'fas fa-cart-shopping', col: '#f5a623' }, { n: 'Network', c: 'fas fa-network-wired', col: '#5aa9ff' }
+];
 
 const els = {
   addPanel: document.getElementById('addPanel'), addPanelHead: document.getElementById('addPanelHead'),
   nameField: document.getElementById('nameField'), secretField: document.getElementById('secretField'),
   accName: document.getElementById('accName'), accSecret: document.getElementById('accSecret'),
   accTags: document.getElementById('accTags'), addBtn: document.getElementById('addBtn'),
+  addIconBtn: document.getElementById('addIconBtn'), editIconBtn: document.getElementById('editIconBtn'),
+  iconPickerOverlay: document.getElementById('iconPickerOverlay'), iconGrid: document.getElementById('iconGrid'),
+  iconSearchInput: document.getElementById('iconSearchInput'), closeIconPicker: document.getElementById('closeIconPicker'),
   searchWrap: document.getElementById('searchWrap'), searchInput: document.getElementById('searchInput'),
   toolbar: document.getElementById('toolbar'), sortSelect: document.getElementById('sortSelect'),
   accountCount: document.getElementById('accountCount'), accountsList: document.getElementById('accountsList'),
@@ -442,30 +570,30 @@ let tokenClient;
 let driveDataCache = null;
 let deferredPrompt;
 
+let activeIconSelectionContext = null; // 'add' or 'edit'
+let selectedAddIcon = null;
+let selectedEditIcon = null;
+
 // ==========================================
-// 2. INITIALIZATION & EVENT LISTENERS
+// 2. INITIALIZATION & LISTENERS
 // ==========================================
 
 setupPWA();
 checkBinExpirations();
+populateIconPicker();
 
 els.addPanelHead.addEventListener('click', ()=> els.addPanel.classList.toggle('open'));
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', (e) => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    e.target.classList.add('active');
-    currentView = e.target.dataset.view;
-    els.searchInput.value = '';
-    render();
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); e.target.classList.add('active');
+    currentView = e.target.dataset.view; els.searchInput.value = ''; render();
   });
 });
 
 els.accName.addEventListener('input', ()=>clearFieldError(els.nameField));
 els.accSecret.addEventListener('input', ()=>clearFieldError(els.secretField));
 els.addBtn.addEventListener('click', tryAdd);
-[els.accName, els.accSecret, els.accTags].forEach(inp=>{
-  inp.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); tryAdd(); } });
-});
+[els.accName, els.accSecret, els.accTags].forEach(inp=>{ inp.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); tryAdd(); } }); });
 
 els.searchInput.addEventListener('input', render);
 els.sortSelect.addEventListener('change', render);
@@ -480,6 +608,13 @@ els.saveEdit.addEventListener('click', handleSaveEdit);
 els.statsBtn.addEventListener('click', openAnalytics);
 els.closeStats.addEventListener('click', () => els.statsOverlay.classList.remove('show'));
 
+// Icon Picker logic
+els.addIconBtn.addEventListener('click', () => openIconPicker('add'));
+els.editIconBtn.addEventListener('click', () => openIconPicker('edit'));
+els.closeIconPicker.addEventListener('click', () => els.iconPickerOverlay.classList.remove('show'));
+els.iconSearchInput.addEventListener('input', filterIcons);
+els.iconPickerOverlay.addEventListener('click', e => { if (e.target === els.iconPickerOverlay) els.iconPickerOverlay.classList.remove('show'); });
+
 els.exportBtn.addEventListener('click', handleExport);
 els.importBtn.addEventListener('click', ()=> els.importFile.click());
 els.importFile.addEventListener('change', handleImport);
@@ -490,77 +625,49 @@ els.conflictLocal.addEventListener('click', () => { els.conflictOverlay.classLis
 els.conflictCloud.addEventListener('click', () => { els.conflictOverlay.classList.remove('show'); executeSync('cloud'); });
 
 window.addEventListener('load', function() {
-    if (window.gapi) {
-        gapi.load('client', () => {
-            gapi.client.init({ discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'] })
-            .then(() => initializeGis());
-        });
-    }
+    if (window.gapi) gapi.load('client', () => gapi.client.init({ discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'] }).then(() => initializeGis()));
 });
 
 requestAnimationFrame(tickAll);
 render();
 
 // ==========================================
-// 3. ALL FUNCTION DEFINITIONS
+// 3. CORE FUNCTIONS
 // ==========================================
 
 function setupPWA() {
   const manifestJSON = {
-    name: "VaultKey", short_name: "VaultKey", display: "standalone",
-    background_color: "#0a0d20", theme_color: "#0a0d20", start_url: ".",
+    name: "VaultKey", short_name: "VaultKey", display: "standalone", background_color: "#0a0d20", theme_color: "#0a0d20", start_url: ".",
     icons: [{ src: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/svgs/solid/shield-halved.svg", sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }]
   };
   const manifestBlob = new Blob([JSON.stringify(manifestJSON)], {type: 'application/manifest+json'});
   els.pwaManifest.href = URL.createObjectURL(manifestBlob);
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault(); deferredPrompt = e; els.installBtn.style.display = 'flex';
-  });
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; els.installBtn.style.display = 'flex'; });
   els.installBtn.addEventListener('click', () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') els.installBtn.style.display = 'none';
-        deferredPrompt = null;
-      });
-    }
+    if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then((r) => { if (r.outcome === 'accepted') els.installBtn.style.display = 'none'; deferredPrompt = null; }); }
   });
 }
 
 function loadAccounts(){
   try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    let parsed = raw ? JSON.parse(raw) : [];
+    const raw = localStorage.getItem(STORAGE_KEY); let parsed = raw ? JSON.parse(raw) : [];
     parsed = parsed.map((a, i) => ({
       ...a, status: a.status || 'active', tags: a.tags || [], order: a.order !== undefined ? a.order : i,
       createdAt: a.createdAt || Date.now(), modifiedAt: a.modifiedAt || Date.now(),
-      copyCount: a.copyCount || 0, lastCopied: a.lastCopied || null, pinned: a.pinned || false
+      copyCount: a.copyCount || 0, lastCopied: a.lastCopied || null, pinned: a.pinned || false,
+      iconData: a.iconData || null // { c: 'fa-google', col: '#fff' }
     }));
     return parsed;
   }catch(e){ return []; }
 }
-
-function saveAccounts(){
-  accounts.forEach((a, i) => a.order = i);
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts)); }catch(e){}
-}
-
-function getBackupMeta() {
-  try { return JSON.parse(localStorage.getItem(BACKUP_META_KEY) || '{"date":"Never","size":0}'); }
-  catch(e){ return {date:"Never",size:0}; }
-}
-
-function saveBackupMeta(size) {
-  localStorage.setItem(BACKUP_META_KEY, JSON.stringify({ date: new Date().toLocaleDateString(), size: size }));
-}
+function saveAccounts(){ accounts.forEach((a, i) => a.order = i); try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts)); }catch(e){} }
+function getBackupMeta() { try { return JSON.parse(localStorage.getItem(BACKUP_META_KEY) || '{"date":"Never","size":0}'); } catch(e){ return {date:"Never",size:0}; } }
+function saveBackupMeta(size) { localStorage.setItem(BACKUP_META_KEY, JSON.stringify({ date: new Date().toLocaleDateString(), size: size })); }
 
 function checkBinExpirations() {
   const now = Date.now(); let changed = false;
   accounts = accounts.filter(a => {
-    if (a.status === 'binned' && a.deletedAt) {
-      if ((now - a.deletedAt) / MS_PER_DAY >= 180) { changed = true; return false; }
-    }
+    if (a.status === 'binned' && a.deletedAt) { if ((now - a.deletedAt) / MS_PER_DAY >= 180) { changed = true; return false; } }
     return true;
   });
   if (changed) saveAccounts();
@@ -569,20 +676,9 @@ function checkBinExpirations() {
 function cleanSecret(s){ return s.replace(/\s+/g,'').toUpperCase(); }
 function isValidBase32(s){ return /^[A-Z2-7]+=*$/.test(s) && s.length >= 8; }
 function isDuplicate(secret, excludeId = null) { return accounts.some(a => a.secret === secret && a.id !== excludeId && a.status !== 'binned'); }
-function initialsFor(name){
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if(parts.length === 0) return '?';
-  if(parts.length === 1) return parts[0].slice(0,2).toUpperCase();
-  return (parts[0][0] + parts[1][0]).toUpperCase();
-}
+function initialsFor(name){ const parts = name.trim().split(/\s+/).filter(Boolean); if(parts.length === 0) return '?'; if(parts.length === 1) return parts[0].slice(0,2).toUpperCase(); return (parts[0][0] + parts[1][0]).toUpperCase(); }
 function uid(){ return 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
-
-function generateCode(secretRaw){
-  try{
-    const totp = new OTPAuth.TOTP({ issuer:'VK', label:'acc', algorithm:'SHA1', digits:6, period:PERIOD, secret: OTPAuth.Secret.fromBase32(secretRaw) });
-    return totp.generate();
-  }catch(e){ return null; }
-}
+function generateCode(secretRaw){ try{ const totp = new OTPAuth.TOTP({ issuer:'VK', label:'acc', algorithm:'SHA1', digits:6, period:PERIOD, secret: OTPAuth.Secret.fromBase32(secretRaw) }); return totp.generate(); }catch(e){ return null; } }
 
 let toastTimer = null;
 function showToast(text, type = 'success'){
@@ -595,6 +691,39 @@ function showToast(text, type = 'success'){
 function clearFieldError(field){ field.classList.remove('has-error'); }
 function setFieldError(field, msg){ field.classList.add('has-error'); if(msg) field.querySelector('.field-error span').textContent = msg; }
 
+// --- Icon Picker Functions ---
+function populateIconPicker() {
+  els.iconGrid.innerHTML = '';
+  ICONS.forEach((ico, idx) => {
+    const el = document.createElement('div'); el.className = 'icon-option'; el.dataset.idx = idx; el.title = ico.n;
+    el.innerHTML = `<i class="${ico.c}" style="color:${ico.col}"></i>`;
+    el.addEventListener('click', () => selectIcon(ico));
+    els.iconGrid.appendChild(el);
+  });
+}
+function filterIcons(e) {
+  const query = e.target.value.toLowerCase();
+  Array.from(els.iconGrid.children).forEach(el => {
+    const ico = ICONS[el.dataset.idx];
+    el.style.display = ico.n.toLowerCase().includes(query) ? 'flex' : 'none';
+  });
+}
+function openIconPicker(context) {
+  activeIconSelectionContext = context; els.iconSearchInput.value = ''; filterIcons({target:{value:''}});
+  els.iconPickerOverlay.classList.add('show');
+}
+function selectIcon(ico) {
+  if (activeIconSelectionContext === 'add') {
+    selectedAddIcon = { c: ico.c, col: ico.col };
+    els.addIconBtn.innerHTML = `<i class="${ico.c}" style="color:${ico.col}"></i>`;
+  } else if (activeIconSelectionContext === 'edit') {
+    selectedEditIcon = { c: ico.c, col: ico.col };
+    els.editIconBtn.innerHTML = `<i class="${ico.c}" style="color:${ico.col}"></i>`;
+  }
+  els.iconPickerOverlay.classList.remove('show');
+}
+
+// --- Account Operations ---
 function tryAdd(){
   const name = els.accName.value.trim(); const secretClean = cleanSecret(els.accSecret.value);
   const tags = els.accTags.value.split(',').map(t=>t.trim()).filter(Boolean);
@@ -606,12 +735,15 @@ function tryAdd(){
   else if(generateCode(secretClean) === null){ setFieldError(els.secretField, "Couldn't read this secret."); ok = false; } 
   else if (isDuplicate(secretClean)) { setFieldError(els.secretField, "Duplicate detected in vault."); ok = false; } 
   else clearFieldError(els.secretField);
-
   if(!ok) return;
 
-  accounts.push({ id: uid(), name, secret: secretClean, tags, status: 'active', createdAt: Date.now(), modifiedAt: Date.now(), copyCount: 0, pinned: false, order: accounts.length });
+  accounts.push({ 
+    id: uid(), name, secret: secretClean, tags, status: 'active', createdAt: Date.now(), modifiedAt: Date.now(), 
+    copyCount: 0, pinned: false, order: accounts.length, iconData: selectedAddIcon 
+  });
   saveAccounts();
-  els.accName.value = ''; els.accSecret.value = ''; els.accTags.value = '';
+  els.accName.value = ''; els.accSecret.value = ''; els.accTags.value = ''; 
+  selectedAddIcon = null; els.addIconBtn.innerHTML = `<i class="fas fa-shield-halved"></i>`;
   els.addPanel.classList.remove('open'); document.querySelector('.tab-btn[data-view="active"]').click();
   showToast('Account added'); autoSyncIfConnected();
 }
@@ -634,9 +766,8 @@ function handleConfirmDelete(){
   if(pendingActionId){
     const accIndex = accounts.findIndex(a=>a.id === pendingActionId);
     if(accIndex !== -1) {
-      if (pendingActionType === 'bin') {
-        accounts[accIndex].status = 'binned'; accounts[accIndex].deletedAt = Date.now(); accounts[accIndex].pinned = false; showToast('Moved to bin');
-      } else if (pendingActionType === 'delete') { accounts.splice(accIndex, 1); showToast('Account deleted permanently', 'warning'); }
+      if (pendingActionType === 'bin') { accounts[accIndex].status = 'binned'; accounts[accIndex].deletedAt = Date.now(); accounts[accIndex].pinned = false; showToast('Moved to bin'); } 
+      else if (pendingActionType === 'delete') { accounts.splice(accIndex, 1); showToast('Account deleted permanently', 'warning'); }
       saveAccounts(); render(); autoSyncIfConnected();
     }
   }
@@ -646,14 +777,14 @@ function handleConfirmDelete(){
 function openEdit(id) {
   const acc = accounts.find(a => a.id === id); if(!acc) return;
   editingId = id; els.editName.value = acc.name; els.editSecret.value = acc.secret; els.editTags.value = acc.tags.join(', ');
+  selectedEditIcon = acc.iconData;
+  els.editIconBtn.innerHTML = acc.iconData ? `<i class="${acc.iconData.c}" style="color:${acc.iconData.col}"></i>` : `<i class="fas fa-shield-halved"></i>`;
   
-  const createdStr = new Date(acc.createdAt).toLocaleString();
-  const modifiedStr = new Date(acc.modifiedAt).toLocaleString();
+  const createdStr = new Date(acc.createdAt).toLocaleString(); const modifiedStr = new Date(acc.modifiedAt).toLocaleString();
   const copiedStr = acc.lastCopied ? new Date(acc.lastCopied).toLocaleString() : 'Never';
   els.editMetaInfo.innerHTML = `Created: <span>${createdStr}</span><br>Modified: <span>${modifiedStr}</span><br>Copied: <span>${acc.copyCount} times</span> (Last: <span>${copiedStr}</span>)`;
   els.editOverlay.classList.add('show');
 }
-
 function handleSaveEdit(){
   if(!editingId) return;
   const name = els.editName.value.trim(); const secretClean = cleanSecret(els.editSecret.value);
@@ -661,7 +792,7 @@ function handleSaveEdit(){
   if(!name || !secretClean || !isValidBase32(secretClean) || isDuplicate(secretClean, editingId)){ showToast('Invalid data or duplicate secret', 'danger'); return; }
   
   const acc = accounts.find(a => a.id === editingId);
-  acc.name = name; acc.secret = secretClean; acc.tags = tags; acc.modifiedAt = Date.now();
+  acc.name = name; acc.secret = secretClean; acc.tags = tags; acc.modifiedAt = Date.now(); acc.iconData = selectedEditIcon;
   saveAccounts(); els.editOverlay.classList.remove('show'); showToast('Changes saved'); render(); autoSyncIfConnected();
 }
 
@@ -684,28 +815,60 @@ function fallbackCopy(text, done){
   document.body.removeChild(ta);
 }
 
+// --- Advanced Analytics Dashboard ---
 function openAnalytics() {
   const rawData = localStorage.getItem(STORAGE_KEY) || '[]';
-  const kbSize = (new Blob([rawData]).size / 1024).toFixed(2);
-  let totalCopies = 0; let mostCopied = null;
+  const sizeBytes = new Blob([rawData]).size;
+  const kbSize = (sizeBytes / 1024).toFixed(2);
+  const maxStorage = 5120; // Assume ~5MB standard localstorage limit
+  const storagePercent = Math.min(100, (kbSize / maxStorage) * 100).toFixed(1);
+  
+  let totalCopies = 0; let newLast30 = 0;
+  const now = Date.now();
+  let oldestDate = now;
+
+  const sortedByCopy = [...accounts].filter(a => (a.copyCount || 0) > 0).sort((a,b) => b.copyCount - a.copyCount);
   
   accounts.forEach(a => {
     totalCopies += (a.copyCount || 0);
-    if (!mostCopied || (a.copyCount || 0) > (mostCopied.copyCount || 0)) mostCopied = a;
+    if (a.createdAt < oldestDate) oldestDate = a.createdAt;
+    if ((now - a.createdAt) / MS_PER_DAY <= 30) newLast30++;
   });
   
-  document.getElementById('statAccounts').textContent = accounts.length;
-  document.getElementById('statTotalCopies').textContent = totalCopies;
+  const vaultAgeDays = accounts.length > 0 ? Math.floor((now - oldestDate) / MS_PER_DAY) : 0;
+  
+  document.getElementById('statStoragePercent').textContent = `${storagePercent}%`;
+  document.getElementById('statStorageBar').style.width = `${storagePercent}%`;
+  if(storagePercent > 80) document.getElementById('statStorageBar').style.background = 'var(--danger)';
+  else if(storagePercent > 50) document.getElementById('statStorageBar').style.background = 'var(--amber)';
+  else document.getElementById('statStorageBar').style.background = 'var(--mint)';
+
   document.getElementById('statSize').textContent = kbSize + ' KB';
+  document.getElementById('statTotalAccounts').textContent = accounts.length;
+  document.getElementById('statTotalCopies').textContent = totalCopies;
+  document.getElementById('statNew30Days').textContent = newLast30;
+  document.getElementById('statVaultAge').textContent = `${vaultAgeDays} Days`;
   document.getElementById('statBackupDate').textContent = getBackupMeta().date;
   
-  const mostCopiedEl = document.getElementById('mostCopiedText');
-  if (mostCopied && mostCopied.copyCount > 0) mostCopiedEl.innerHTML = `Most Used: <strong>${escapeHtml(mostCopied.name)}</strong> (${mostCopied.copyCount} copies)`;
-  else mostCopiedEl.innerHTML = 'No copies made yet.';
+  const topListEl = document.getElementById('statTopList');
+  topListEl.innerHTML = '';
+  if (sortedByCopy.length === 0) {
+    topListEl.innerHTML = `<div class="top-item" style="justify-content:center; color:var(--text-faint);">No copy data yet.</div>`;
+  } else {
+    sortedByCopy.slice(0, 3).forEach(acc => {
+      let iconHtml = acc.iconData ? `<i class="${acc.iconData.c}" style="color:${acc.iconData.col}"></i>` : `<i class="fas fa-shield-halved" style="color:var(--text-faint)"></i>`;
+      topListEl.innerHTML += `
+        <div class="top-item">
+          <div class="top-item-name">${iconHtml} ${escapeHtml(acc.name)}</div>
+          <div class="top-item-count">${acc.copyCount} uses</div>
+        </div>`;
+    });
+  }
 
   els.statsOverlay.classList.add('show');
 }
 
+// --- Import / Export ---
 function handleExport(){
   if(accounts.length === 0){ showToast('Nothing to export', 'danger'); return; }
   const blob = new Blob([JSON.stringify(accounts, null, 2)], { type:'application/json' });
@@ -727,7 +890,8 @@ function handleImport(e){
           accounts.push({ 
             id: uid(), name: String(item.name), secret: cleanSecret(item.secret), color: item.color, tags: item.tags || [],
             status: item.status || 'active', order: accounts.length, createdAt: item.createdAt || Date.now(),
-            modifiedAt: item.modifiedAt || Date.now(), copyCount: item.copyCount || 0, pinned: item.pinned || false
+            modifiedAt: item.modifiedAt || Date.now(), copyCount: item.copyCount || 0, pinned: item.pinned || false,
+            iconData: item.iconData || null
           }); added++;
         }
       });
@@ -739,7 +903,7 @@ function handleImport(e){
   }; reader.readAsText(file);
 }
 
-// Drag & Drop
+// --- Drag & Drop ---
 function handleDragStart(e) { if(els.searchInput.value || els.sortSelect.value !== 'custom') return; draggedCard = this; setTimeout(() => this.classList.add('dragging'), 0); e.dataTransfer.effectAllowed = 'move'; }
 function handleDragOver(e) { e.preventDefault(); if (!draggedCard || this === draggedCard || els.searchInput.value || els.sortSelect.value !== 'custom') return; this.classList.add('drag-over'); }
 function handleDragLeave() { this.classList.remove('drag-over'); }
@@ -758,6 +922,7 @@ function handleDrop(e) {
 }
 function handleDragEnd() { this.classList.remove('dragging'); draggedCard = null; }
 
+// --- Render Engine ---
 function render(){
   const query = els.searchInput.value.trim().toLowerCase();
   let filtered = accounts.filter(a => a.status === currentView);
@@ -786,26 +951,17 @@ function render(){
 
   els.accountsList.innerHTML = '';
 
-  // Render Sub-sections only in Active Vault
+  // Rendering Layout (Only Pinned and Others, per user request)
   if (currentView === 'active' && !query) {
     const pinned = filtered.filter(a => a.pinned);
-    const unpinned = filtered.filter(a => !a.pinned);
-    
-    const sortedByCopy = [...unpinned].filter(a => (a.copyCount || 0) > 0).sort((a,b) => b.copyCount - a.copyCount);
-    const mostUsed = sortedByCopy.slice(0, 3);
-    const mostUsedIds = new Set(mostUsed.map(a => a.id));
-    const others = unpinned.filter(a => !mostUsedIds.has(a.id));
+    const others = filtered.filter(a => !a.pinned);
 
     if (pinned.length) {
       els.accountsList.insertAdjacentHTML('beforeend', `<div class="section-title"><i class="fas fa-thumbtack"></i> Pinned</div>`);
       pinned.forEach(a => els.accountsList.appendChild(buildCard(a)));
     }
-    if (mostUsed.length) {
-      els.accountsList.insertAdjacentHTML('beforeend', `<div class="section-title"><i class="fas fa-fire"></i> Most Used</div>`);
-      mostUsed.forEach(a => els.accountsList.appendChild(buildCard(a)));
-    }
     if (others.length) {
-      if (pinned.length || mostUsed.length) els.accountsList.insertAdjacentHTML('beforeend', `<div class="section-title"><i class="fas fa-list"></i> All Others</div>`);
+      if (pinned.length) els.accountsList.insertAdjacentHTML('beforeend', `<div class="section-title"><i class="fas fa-list"></i> All Others</div>`);
       others.forEach(a => els.accountsList.appendChild(buildCard(a)));
     }
   } else {
@@ -858,6 +1014,11 @@ function buildCard(acc){
       timerOrBinHtml = `<div class="timer-pill" data-role="timer"><i class="fas fa-clock"></i> <span></span></div>`;
   }
 
+  // Render Avatar (Custom Icon or Text Initials)
+  let avatarHtml = '';
+  if (acc.iconData) avatarHtml = `<div class="ring-avatar" style="background: var(--surface-2); border: 1px solid var(--border); color:${acc.iconData.col};"><i class="${acc.iconData.c}"></i></div>`;
+  else avatarHtml = `<div class="ring-avatar is-text" style="background:${acc.color};">${initialsFor(acc.name)}</div>`;
+
   card.innerHTML = `
     <div class="card-top">
       <div class="card-meta">
@@ -866,7 +1027,7 @@ function buildCard(acc){
             <circle class="ring-track" cx="26" cy="26" r="${RADIUS}"></circle>
             <circle class="ring-fill" cx="26" cy="26" r="${RADIUS}" stroke-dasharray="${CIRC}" stroke-dashoffset="0"></circle>
           </svg>
-          <div class="ring-avatar" style="background:${acc.color};">${initialsFor(acc.name)}</div>
+          ${avatarHtml}
         </div>
         <div class="account-name-wrap">
           <div class="account-name">${escapeHtml(acc.name)}</div>
@@ -904,7 +1065,6 @@ function tickAll(){
   const now = Date.now();
   const epoch = Math.floor(now / 1000);
   const msOffset = now % 1000;
-  
   const countDown = PERIOD - (epoch % PERIOD);
   const fraction = (countDown * 1000 - msOffset) / (PERIOD * 1000);
   const offset = CIRC * (1 - fraction);
@@ -943,10 +1103,8 @@ function tickAll(){
   requestAnimationFrame(tickAll);
 }
 
-// Google Drive Sync
-function initializeGis() {
-  tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: SCOPES, callback: async (res) => { if (res.error !== undefined) throw res; await startSyncProcess(); }, });
-}
+// --- Google Drive Sync ---
+function initializeGis() { tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: SCOPES, callback: async (res) => { if (res.error !== undefined) throw res; await startSyncProcess(); }, }); }
 function handleManualSync(){
   if (typeof google === 'undefined' || !tokenClient) { showToast('Google API not loaded yet', 'danger'); return; }
   if (gapi.client.getToken() === null) tokenClient.requestAccessToken({prompt: 'consent'}); else tokenClient.requestAccessToken({prompt: ''});
