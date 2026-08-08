@@ -4,26 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VaultKey — Authenticator</title>
+<link id="pwaManifest" rel="manifest" href="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/otpauth/9.3.1/otpauth.umd.min.js"></script>
 <style>
   :root{
-    --bg:#0a0d20;
-    --bg-2:#0e1228;
-    --surface:#141935;
-    --surface-2:#1b2144;
-    --border:#272e5a;
-    --border-soft:#20264a;
-    --accent:#7b6ef6;
-    --accent-soft:rgba(123,110,246,.16);
-    --mint:#3ed6b5;
-    --amber:#f5a623;
-    --danger:#ff5d6c;
-    --text:#eef0fb;
-    --text-muted:#8b90b8;
-    --text-faint:#5b6096;
+    --bg:#0a0d20; --bg-2:#0e1228;
+    --surface:#141935; --surface-2:#1b2144;
+    --border:#272e5a; --border-soft:#20264a;
+    --accent:#7b6ef6; --accent-soft:rgba(123,110,246,.16);
+    --mint:#3ed6b5; --amber:#f5a623; --danger:#ff5d6c;
+    --text:#eef0fb; --text-muted:#8b90b8; --text-faint:#5b6096;
     --radius:16px;
     --font-display:'Space Grotesk',sans-serif;
     --font-body:'Inter',sans-serif;
@@ -33,333 +26,185 @@
   *{margin:0;padding:0;box-sizing:border-box;}
   html{-webkit-tap-highlight-color:transparent;}
   body{
-    background:
-      radial-gradient(circle at 12% 0%, rgba(123,110,246,.16), transparent 42%),
-      radial-gradient(circle at 88% 12%, rgba(62,214,181,.10), transparent 40%),
-      var(--bg);
-    color:var(--text);
-    font-family:var(--font-body);
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
+    background: radial-gradient(circle at 12% 0%, rgba(123,110,246,.16), transparent 42%),
+                radial-gradient(circle at 88% 12%, rgba(62,214,181,.10), transparent 40%), var(--bg);
+    color:var(--text); font-family:var(--font-body);
+    min-height:100vh; display:flex; flex-direction:column;
     -webkit-font-smoothing:antialiased;
   }
-
   :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px;}
 
   /* ---------- Navbar ---------- */
-  .navbar{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:18px 22px;
-    border-bottom:1px solid var(--border-soft);
-  }
+  .navbar{ display:flex;align-items:center;justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--border-soft); }
   .nav-left{display:flex;align-items:center;gap:11px;}
   .logo{
     width:34px;height:34px;border-radius:10px;
     background:linear-gradient(145deg,var(--accent),#5a4de0);
     display:flex;align-items:center;justify-content:center;
     box-shadow:0 4px 16px rgba(123,110,246,.35);
-    position:relative;
   }
   .logo i{color:#fff;font-size:14px;}
   .nav-title{font-family:var(--font-display);font-weight:700;font-size:17px;letter-spacing:.2px;}
   .nav-sub{font-size:11px;color:var(--text-faint);font-weight:500;letter-spacing:.3px;}
 
   .icon-btn{
-    background:var(--surface);
-    border:1px solid var(--border-soft);
-    color:var(--text-muted);
-    width:38px;height:38px;border-radius:10px;
+    background:var(--surface); border:1px solid var(--border-soft);
+    color:var(--text-muted); width:38px;height:38px;border-radius:10px;
     display:flex;align-items:center;justify-content:center;
-    cursor:pointer;font-size:14px;
-    transition:all .18s ease;
+    cursor:pointer;font-size:14px; transition:all .18s ease;
   }
   .icon-btn:hover{color:var(--text);border-color:var(--accent);transform:translateY(-1px);}
   #syncDriveBtn:hover{color:#4285F4;border-color:#4285F4;}
-
+  #installBtn{display:none; color:var(--mint); border-color:rgba(62,214,181,.3);}
+  #installBtn:hover{background:rgba(62,214,181,.1); border-color:var(--mint);}
   .nav-actions{display:flex;gap:8px;}
 
   /* ---------- Main layout ---------- */
-  .container{
-    flex:1;width:100%;max-width:540px;margin:0 auto;
-    padding:26px 18px 60px;
-    display:flex;flex-direction:column;gap:22px;
-  }
+  .container{ flex:1;width:100%;max-width:540px;margin:0 auto; padding:26px 18px 60px; display:flex;flex-direction:column;gap:22px; }
 
   /* ---------- Add-account panel ---------- */
-  .add-panel{
-    background:var(--surface);
-    border:1px solid var(--border-soft);
-    border-radius:var(--radius);
-    padding:18px;
-    animation:riseIn .5s cubic-bezier(.2,.8,.2,1) both;
-  }
-  .add-panel-head{
-    display:flex;align-items:center;justify-content:space-between;
-    cursor:pointer;
-    user-select:none;
-  }
-  .add-panel-head h2{
-    font-family:var(--font-display);font-size:15px;font-weight:600;
-    display:flex;align-items:center;gap:9px;
-  }
-  .add-panel-head h2 .ring-dot{
-    width:8px;height:8px;border-radius:50%;background:var(--mint);
-    box-shadow:0 0 0 4px rgba(62,214,181,.16);
-  }
+  .add-panel{ background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius); padding:18px; animation:riseIn .5s cubic-bezier(.2,.8,.2,1) both; }
+  .add-panel-head{ display:flex;align-items:center;justify-content:space-between; cursor:pointer; user-select:none; }
+  .add-panel-head h2{ font-family:var(--font-display);font-size:15px;font-weight:600; display:flex;align-items:center;gap:9px; }
+  .add-panel-head h2 .ring-dot{ width:8px;height:8px;border-radius:50%;background:var(--mint); box-shadow:0 0 0 4px rgba(62,214,181,.16); }
   .chevron{color:var(--text-faint);transition:transform .28s ease;font-size:13px;}
   .add-panel.open .chevron{transform:rotate(180deg);}
-
-  .add-form{
-    display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.2,.8,.2,1);
-  }
+  .add-form{ display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.2,.8,.2,1); }
   .add-panel.open .add-form{grid-template-rows:1fr;}
   .add-form-inner{overflow:hidden;}
 
   .field{margin-top:14px;}
-  .field label{
-    display:block;font-size:11.5px;font-weight:600;color:var(--text-muted);
-    margin-bottom:7px;letter-spacing:.3px;text-transform:uppercase;
-  }
+  .field label{ display:block;font-size:11.5px;font-weight:600;color:var(--text-muted); margin-bottom:7px;letter-spacing:.3px;text-transform:uppercase; }
   .field-input-wrap{position:relative;}
-  .field-input-wrap i{
-    position:absolute;left:14px;top:50%;transform:translateY(-50%);
-    color:var(--text-faint);font-size:14px;
-  }
+  .field-input-wrap i{ position:absolute;left:14px;top:50%;transform:translateY(-50%); color:var(--text-faint);font-size:14px; }
   .field input{
-    width:100%;
-    background:var(--bg-2);
-    border:1.5px solid var(--border);
-    color:var(--text);
-    padding:12px 14px 12px 40px;
-    border-radius:11px;
-    font-size:14.5px;
-    font-family:var(--font-body);
-    outline:none;
-    transition:border-color .18s ease, box-shadow .18s ease;
+    width:100%; background:var(--bg-2); border:1.5px solid var(--border); color:var(--text);
+    padding:12px 14px 12px 40px; border-radius:11px; font-size:14.5px; font-family:var(--font-body); outline:none; transition:border-color .18s ease, box-shadow .18s ease;
   }
-  .field input::placeholder{color:var(--text-faint);}
   .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3.5px var(--accent-soft);}
   .field.has-error input{border-color:var(--danger);box-shadow:0 0 0 3.5px rgba(255,93,108,.16);}
-  .field-error{
-    font-size:12px;color:var(--danger);margin-top:6px;font-weight:500;
-    display:none;align-items:center;gap:6px;
-  }
+  .field-error{ font-size:12px;color:var(--danger);margin-top:6px;font-weight:500; display:none;align-items:center;gap:6px; }
   .field.has-error .field-error{display:flex;}
 
   .btn{
-    border:none;border-radius:11px;font-family:var(--font-body);
-    font-weight:600;font-size:14.5px;cursor:pointer;
-    display:inline-flex;align-items:center;justify-content:center;gap:9px;
-    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+    border:none;border-radius:11px;font-family:var(--font-body); font-weight:600;font-size:14.5px;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:9px; transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
   }
   .btn:active{transform:scale(.97);}
-  .btn-primary{
-    width:100%;padding:13px;margin-top:18px;
-    background:linear-gradient(140deg,var(--accent),#5a4de0);
-    color:#fff;box-shadow:0 8px 20px rgba(123,110,246,.28);
-  }
+  .btn-primary{ width:100%;padding:13px;margin-top:18px; background:linear-gradient(140deg,var(--accent),#5a4de0); color:#fff;box-shadow:0 8px 20px rgba(123,110,246,.28); }
   .btn-primary:hover{box-shadow:0 10px 24px rgba(123,110,246,.4);transform:translateY(-1px);}
-  .btn-ghost{
-    background:transparent;border:1px solid var(--border);color:var(--text-muted);
-    padding:9px 14px;font-size:13px;
-  }
+  .btn-ghost{ background:transparent;border:1px solid var(--border);color:var(--text-muted); padding:9px 14px;font-size:13px; }
   .btn-ghost:hover{border-color:var(--accent);color:var(--text);}
-  
   .btn-warning{background:var(--amber);color:#fff;}
   .btn-warning:hover{box-shadow:0 8px 18px rgba(245, 166, 35, 0.32);}
 
-  /* ---------- Tabs (Main, Archive, Bin) ---------- */
-  .tabs{
-    display:flex; gap:8px; margin-bottom: -10px;
-    background: var(--surface); padding: 6px; border-radius: 12px;
-    border: 1px solid var(--border-soft);
-  }
-  .tab-btn{
-    flex:1; padding:10px; border-radius:8px; border:none; background:transparent;
-    color:var(--text-muted); font-size:13px; font-weight:600; cursor:pointer;
-    transition:all 0.2s;
-  }
-  .tab-btn.active{
-    background:var(--bg-2); color:var(--text); box-shadow:0 2px 8px rgba(0,0,0,0.2);
-  }
+  /* ---------- Tabs ---------- */
+  .tabs{ display:flex; gap:8px; margin-bottom: -10px; background: var(--surface); padding: 6px; border-radius: 12px; border: 1px solid var(--border-soft); }
+  .tab-btn{ flex:1; padding:10px; border-radius:8px; border:none; background:transparent; color:var(--text-muted); font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+  .tab-btn.active{ background:var(--bg-2); color:var(--text); box-shadow:0 2px 8px rgba(0,0,0,0.2); }
   .tab-btn:hover:not(.active){ color:var(--text); }
 
-  /* ---------- Search ---------- */
+  /* ---------- Search & Toolbar ---------- */
   .search-wrap{position:relative;}
   .search-wrap i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-faint);font-size:13px;}
-  .search-wrap input{
-    width:100%;background:var(--surface);border:1px solid var(--border-soft);
-    color:var(--text);padding:11px 14px 11px 38px;border-radius:11px;font-size:13.5px;outline:none;
-    transition:border-color .18s ease;
-  }
+  .search-wrap input{ width:100%;background:var(--surface);border:1px solid var(--border-soft); color:var(--text);padding:11px 14px 11px 38px;border-radius:11px;font-size:13.5px;outline:none; transition:border-color .18s ease; }
   .search-wrap input:focus{border-color:var(--accent);}
 
-  /* ---------- Toolbar ---------- */
   .toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;}
   .toolbar-count{font-size:12.5px;color:var(--text-faint);font-weight:500;}
-  .toolbar-actions{display:flex;gap:8px;}
+  .toolbar-actions{display:flex;gap:8px; align-items: center;}
+  
+  .sort-select{
+    background: var(--bg-2); border: 1px solid var(--border-soft); color: var(--text-muted);
+    font-family: var(--font-body); font-size: 12px; font-weight: 500; padding: 6px 10px;
+    border-radius: 8px; outline: none; cursor: pointer; transition: all 0.2s;
+  }
+  .sort-select:hover, .sort-select:focus { border-color: var(--accent); color: var(--text); }
 
   /* ---------- Accounts list ---------- */
   .accounts-list{display:flex;flex-direction:column;gap:12px; min-height: 100px;}
-
   .account-card{
-    background:var(--surface);
-    border:1px solid var(--border-soft);
-    border-radius:var(--radius);
-    padding:15px;
-    display:flex;align-items:center;gap:14px;
-    animation:riseIn .45s cubic-bezier(.2,.8,.2,1) both;
-    transition:border-color .2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-    cursor: grab;
+    background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius); padding:15px;
+    display:flex;align-items:center;gap:14px; animation:riseIn .45s cubic-bezier(.2,.8,.2,1) both;
+    transition:border-color .2s ease, transform 0.2s ease, box-shadow 0.2s ease; cursor: grab; position: relative;
   }
   .account-card:hover{border-color:var(--border);}
   .account-card.invalid{border-color:rgba(255,93,108,.4);}
-  .account-card:active{cursor: grabbing;}
-  .account-card.dragging{
-    opacity: 0.5; border: 2px dashed var(--accent); transform: scale(0.98);
-  }
-  .account-card.drag-over{
-    border-top: 3px solid var(--accent);
-  }
+  .account-card.dragging{ opacity: 0.5; border: 2px dashed var(--accent); transform: scale(0.98); }
+  .account-card.drag-over{ border-top: 3px solid var(--accent); }
+  .account-card.is-pinned { border-left: 3px solid var(--accent); }
 
   .ring-wrap{position:relative;width:52px;height:52px;flex-shrink:0;}
   .ring-wrap svg{width:52px;height:52px;transform:rotate(-90deg);}
   .ring-track{fill:none;stroke:var(--border);stroke-width:4;}
-  .ring-fill{
-    fill:none;stroke:var(--mint);stroke-width:4;stroke-linecap:round;
-    transition:stroke-dashoffset 1s linear, stroke .3s ease;
-  }
-  .ring-avatar{
-    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    font-family:var(--font-display);font-weight:700;font-size:14px;color:#fff;
-    border-radius:50%;
-  }
+  .ring-fill{ fill:none;stroke:var(--mint);stroke-width:4;stroke-linecap:round; transition: stroke .3s ease; }
+  .ring-avatar{ position:absolute;inset:0;display:flex;align-items:center;justify-content:center; font-family:var(--font-display);font-weight:700;font-size:14px;color:#fff; border-radius:50%; }
 
   .account-body{flex:1;min-width:0; display: flex; flex-direction: column; justify-content: center;}
-  .account-name-wrap{
-    display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;
-  }
-  .account-name{
-    font-size:13.5px;font-weight:600;color:var(--text-muted);
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  }
+  .account-name-wrap{ display:flex;align-items:center;justify-content:space-between;margin-bottom:3px; }
+  .account-name{ font-size:13.5px;font-weight:600;color:var(--text-muted); white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
   
-  /* Tags CSS */
   .tag-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; margin-bottom: 4px;}
-  .tag-item {
-    font-size: 9.5px; background: var(--bg-2); border: 1px solid var(--border);
-    color: var(--text-muted); padding: 2px 6px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;
-  }
+  .tag-item { font-size: 9.5px; background: var(--bg-2); border: 1px solid var(--border); color: var(--text-muted); padding: 2px 6px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s; }
+  .tag-item:hover { color: var(--text); border-color: var(--accent); background: var(--surface-2); }
 
-  .account-timer{
-    font-size:11.5px;font-weight:600;color:var(--text-faint);
-    font-variant-numeric:tabular-nums;
-  }
+  .account-timer{ font-size:11.5px;font-weight:600;color:var(--text-faint); font-variant-numeric:tabular-nums; }
   .account-timer.urgent{color:var(--danger);}
-  
-  .bin-countdown {
-    font-size: 11px; font-weight: 600; color: var(--danger);
-  }
+  .bin-countdown { font-size: 11px; font-weight: 600; color: var(--danger); }
 
+  /* Fix for wrap issue from image */
   .account-code{
     font-family:var(--font-mono);font-weight:700;font-size:23px;letter-spacing:2.5px;
-    color:var(--text);
+    color:var(--text); white-space: nowrap; 
   }
   .account-code.invalid-text{font-size:13px;color:var(--danger);font-family:var(--font-body);letter-spacing:0;font-weight:500;}
 
   .account-actions{display:flex;align-items:center;gap:6px; flex-wrap: wrap; justify-content: flex-end;}
-  .mini-btn{
-    width:36px;height:36px;border-radius:10px;border:1px solid var(--border-soft);
-    background:var(--bg-2);color:var(--text-muted);cursor:pointer;
-    display:flex;align-items:center;justify-content:center;font-size:13px;
-    transition:all .16s ease;
-  }
+  .mini-btn{ width:36px;height:36px;border-radius:10px;border:1px solid var(--border-soft); background:var(--bg-2);color:var(--text-muted);cursor:pointer; display:flex;align-items:center;justify-content:center;font-size:13px; transition:all .16s ease; }
   .mini-btn:hover{color:var(--text);border-color:var(--accent);}
   .mini-btn.delete:hover{color:var(--danger);border-color:var(--danger);}
   .mini-btn.warning:hover{color:var(--amber);border-color:var(--amber);}
   .mini-btn.copied{color:var(--mint);border-color:var(--mint);}
+  .mini-btn.active-pin{color:var(--accent);border-color:var(--accent);background:var(--surface-2);}
 
-  /* ---------- Empty state ---------- */
-  .empty-state{
-    text-align:center;padding:50px 20px;color:var(--text-faint);
-    display:flex;flex-direction:column;align-items:center;gap:14px;
-    animation:riseIn .5s ease both;
-  }
-  .empty-state .empty-icon{
-    width:58px;height:58px;border-radius:16px;background:var(--surface);
-    border:1px solid var(--border-soft);
-    display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--accent);
-  }
+  .empty-state{ text-align:center;padding:50px 20px;color:var(--text-faint); display:flex;flex-direction:column;align-items:center;gap:14px; animation:riseIn .5s ease both; }
+  .empty-state .empty-icon{ width:58px;height:58px;border-radius:16px;background:var(--surface); border:1px solid var(--border-soft); display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--accent); }
   .empty-state h3{font-family:var(--font-display);color:var(--text-muted);font-size:15px;font-weight:600;}
   .empty-state p{font-size:13px;max-width:280px;line-height:1.5;}
+  .footer-note{ text-align:center;font-size:12px;color:var(--text-faint); display:flex;align-items:center;justify-content:center;gap:7px; margin-top:4px; }
 
-  /* ---------- Footer ---------- */
-  .footer-note{
-    text-align:center;font-size:12px;color:var(--text-faint);
-    display:flex;align-items:center;justify-content:center;gap:7px;
-    margin-top:4px;
-  }
-
-  /* ---------- Toast ---------- */
+  /* ---------- Modals ---------- */
   .toast{
-    position:fixed;bottom:26px;left:50%;
-    transform:translateX(-50%) translateY(100px); 
-    background:var(--surface-2);
-    border:1px solid var(--border);
-    color:var(--text);
-    padding:12px 20px;border-radius:30px;
-    font-size:13.5px;font-weight:600;
-    display:flex;align-items:center;gap:9px;
-    box-shadow:0 12px 30px rgba(0,0,0,.4);
-    transition:transform .4s cubic-bezier(.2,.9,.25,1.3);
-    z-index:1000;
+    position:fixed;bottom:26px;left:50%; transform:translateX(-50%) translateY(100px); background:var(--surface-2); border:1px solid var(--border);
+    color:var(--text); padding:12px 20px;border-radius:30px; font-size:13.5px;font-weight:600; display:flex;align-items:center;gap:9px; box-shadow:0 12px 30px rgba(0,0,0,.4); transition:transform .4s cubic-bezier(.2,.9,.25,1.3); z-index:1000;
   }
   .toast.show{transform:translateX(-50%) translateY(0);}
-  .toast i{color:var(--mint);}
-  .toast.toast-danger i{color:var(--danger);}
-  .toast.toast-warning i{color:var(--amber);}
+  .toast i{color:var(--mint);} .toast.toast-danger i{color:var(--danger);} .toast.toast-warning i{color:var(--amber);}
 
-  /* ---------- Modals / Overlays ---------- */
-  .overlay{
-    position:fixed;inset:0;background:rgba(5,7,18,.6);backdrop-filter:blur(3px);
-    display:flex;align-items:center;justify-content:center;padding:20px;
-    opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:1100;
-  }
+  .overlay{ position:fixed;inset:0;background:rgba(5,7,18,.6);backdrop-filter:blur(3px); display:flex;align-items:center;justify-content:center;padding:20px; opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:1100; }
   .overlay.show{opacity:1;pointer-events:auto;}
-  .modal-box{
-    background:var(--surface);border:1px solid var(--border);border-radius:16px;
-    padding:22px;max-width:340px;width:100%;
-    transform:translateY(14px) scale(.97);transition:transform .25s cubic-bezier(.2,.8,.2,1);
-  }
+  .modal-box{ background:var(--surface);border:1px solid var(--border);border-radius:16px; padding:22px;max-width:340px;width:100%; transform:translateY(14px) scale(.97);transition:transform .25s cubic-bezier(.2,.8,.2,1); }
   .overlay.show .modal-box{transform:translateY(0) scale(1);}
   .modal-box h3{font-family:var(--font-display);font-size:16px;margin-bottom:8px;}
   .modal-box p{font-size:13.5px;color:var(--text-muted);line-height:1.5;margin-bottom:18px;}
   .modal-actions{display:flex;gap:10px; margin-top: 18px;}
   .modal-actions .btn{flex:1;padding:11px;}
-  .btn-danger{background:var(--danger);color:#fff;}
-  .btn-danger:hover{box-shadow:0 8px 18px rgba(255,93,108,.32);}
+  .btn-danger{background:var(--danger);color:#fff;} .btn-danger:hover{box-shadow:0 8px 18px rgba(255,93,108,.32);}
 
-  /* Stats Grid */
   .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
   .stat-card { background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: 12px; padding: 14px; text-align: center; }
   .stat-val { font-size: 18px; font-weight: 700; color: var(--text); font-family: var(--font-mono); }
   .stat-label { font-size: 11px; color: var(--text-faint); text-transform: uppercase; margin-top: 4px; letter-spacing: 0.5px;}
 
+  .meta-info { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-soft); font-size: 11.5px; color: var(--text-faint); line-height: 1.6; }
+  .meta-info span { color: var(--text-muted); font-family: var(--font-mono); }
   input[type="file"]{display:none;}
 
-  /* ---------- Animations ---------- */
   @keyframes riseIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
   @keyframes pulseRing{0%,100%{filter:drop-shadow(0 0 0 rgba(255,93,108,0));}50%{filter:drop-shadow(0 0 5px rgba(255,93,108,.55));}}
   .ring-wrap.urgent .ring-fill{animation:pulseRing 1s ease-in-out infinite;}
-
-  @media (prefers-reduced-motion: reduce){
-    *{animation-duration:.001s !important;transition-duration:.001s !important;}
-  }
-
-  @media (max-width:380px){
-    .account-code{font-size:20px;letter-spacing:1.5px;}
-  }
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:.001s !important;transition-duration:.001s !important;} }
+  @media (max-width:380px){ .account-code{font-size:20px;letter-spacing:1.5px;} }
 </style>
 </head>
 <body>
@@ -373,7 +218,8 @@
     </div>
   </div>
   <div class="nav-actions">
-    <button class="icon-btn" id="statsBtn" title="Storage Stats"><i class="fas fa-chart-pie"></i></button>
+    <button class="icon-btn" id="installBtn" title="Install App"><i class="fas fa-download"></i></button>
+    <button class="icon-btn" id="statsBtn" title="Analytics Dashboard"><i class="fas fa-chart-pie"></i></button>
     <button class="icon-btn" id="syncDriveBtn" title="Sync to Google Drive"><i class="fab fa-google-drive"></i></button>
     <button class="icon-btn" id="exportBtn" title="Export backup"><i class="fas fa-upload"></i></button>
     <button class="icon-btn" id="importBtn" title="Import backup"><i class="fas fa-download"></i></button>
@@ -382,7 +228,6 @@
 </nav>
 
 <main class="container">
-
   <section class="add-panel" id="addPanel">
     <div class="add-panel-head" id="addPanelHead">
       <h2><span class="ring-dot"></span> Add an account</h2>
@@ -391,7 +236,7 @@
     <div class="add-form">
       <div class="add-form-inner">
         <div class="field" id="nameField">
-          <label for="accName">Account name</label>
+          <label>Account name</label>
           <div class="field-input-wrap">
             <i class="fas fa-user"></i>
             <input type="text" id="accName" placeholder="e.g. Gmail — salim@..." autocomplete="off">
@@ -399,7 +244,7 @@
           <div class="field-error"><i class="fas fa-circle-exclamation"></i><span>Give this account a name.</span></div>
         </div>
         <div class="field" id="secretField">
-          <label for="accSecret">Secret key</label>
+          <label>Secret key</label>
           <div class="field-input-wrap">
             <i class="fas fa-key"></i>
             <input type="text" id="accSecret" placeholder="e.g. JBSWY3DPEHPK3PXP" autocomplete="off" spellcheck="false">
@@ -407,7 +252,7 @@
           <div class="field-error"><i class="fas fa-circle-exclamation"></i><span>Invalid or duplicate secret key.</span></div>
         </div>
         <div class="field" id="tagsField">
-          <label for="accTags">Tags (comma separated)</label>
+          <label>Tags (comma separated)</label>
           <div class="field-input-wrap">
             <i class="fas fa-hashtag"></i>
             <input type="text" id="accTags" placeholder="e.g. work, email, personal" autocomplete="off">
@@ -418,7 +263,6 @@
     </div>
   </section>
 
-  <!-- View Tabs -->
   <div class="tabs">
     <button class="tab-btn active" data-view="active">Main Vault</button>
     <button class="tab-btn" data-view="archived">Archive</button>
@@ -427,11 +271,19 @@
 
   <div class="search-wrap" id="searchWrap" style="display:none;">
     <i class="fas fa-magnifying-glass"></i>
-    <input type="text" id="searchInput" placeholder="Search accounts...">
+    <input type="text" id="searchInput" placeholder="Search or click tags...">
   </div>
 
   <div class="toolbar" id="toolbar" style="display:none;">
     <span class="toolbar-count" id="accountCount">0 active keys</span>
+    <div class="toolbar-actions">
+      <select id="sortSelect" class="sort-select">
+        <option value="custom">Sort: Custom Order</option>
+        <option value="az">Sort: A-Z</option>
+        <option value="newest">Sort: Newest</option>
+        <option value="copied">Sort: Most Copied</option>
+      </select>
+    </div>
   </div>
 
   <section class="accounts-list" id="accountsList"></section>
@@ -461,28 +313,17 @@
 
 <div class="overlay" id="statsOverlay">
   <div class="modal-box">
-    <h3><i class="fas fa-chart-pie"></i> Vault Storage System</h3>
-    <p>Current device storage statistics.</p>
+    <h3><i class="fas fa-chart-pie"></i> Analytics Dashboard</h3>
+    <p>Usage & Vault Statistics.</p>
     <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-val" id="statAccounts">0</div>
-        <div class="stat-label">Total Accounts</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-val" id="statSize">0 KB</div>
-        <div class="stat-label">Encrypted Data</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-val" id="statBackupSize">0 KB</div>
-        <div class="stat-label">Backup Size</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-val" id="statBackupDate" style="font-size:14px;">Never</div>
-        <div class="stat-label">Last Backup</div>
-      </div>
+      <div class="stat-card"><div class="stat-val" id="statAccounts">0</div><div class="stat-label">Total Accounts</div></div>
+      <div class="stat-card"><div class="stat-val" id="statTotalCopies">0</div><div class="stat-label">Total Copies</div></div>
+      <div class="stat-card"><div class="stat-val" id="statSize">0 KB</div><div class="stat-label">Vault Size</div></div>
+      <div class="stat-card"><div class="stat-val" id="statBackupDate" style="font-size:14px;">Never</div><div class="stat-label">Last Backup</div></div>
     </div>
+    <div class="meta-info" id="mostCopiedText" style="text-align: center; border: none; padding: 0;"></div>
     <div class="modal-actions">
-      <button class="btn btn-ghost" id="closeStats" style="width:100%">Close</button>
+      <button class="btn btn-ghost" id="closeStats" style="width:100%">Close Dashboard</button>
     </div>
   </div>
 </div>
@@ -504,25 +345,17 @@
     <h3><i class="fas fa-pen"></i> Edit Account</h3>
     <div class="field" style="margin-top:0;">
       <label>Account name</label>
-      <div class="field-input-wrap">
-        <i class="fas fa-user"></i>
-        <input type="text" id="editName" autocomplete="off">
-      </div>
+      <div class="field-input-wrap"><i class="fas fa-user"></i><input type="text" id="editName" autocomplete="off"></div>
     </div>
     <div class="field">
       <label>Secret key</label>
-      <div class="field-input-wrap">
-        <i class="fas fa-key"></i>
-        <input type="text" id="editSecret" autocomplete="off" spellcheck="false">
-      </div>
+      <div class="field-input-wrap"><i class="fas fa-key"></i><input type="text" id="editSecret" autocomplete="off" spellcheck="false"></div>
     </div>
     <div class="field">
       <label>Tags (comma separated)</label>
-      <div class="field-input-wrap">
-        <i class="fas fa-hashtag"></i>
-        <input type="text" id="editTags" autocomplete="off">
-      </div>
+      <div class="field-input-wrap"><i class="fas fa-hashtag"></i><input type="text" id="editTags" autocomplete="off"></div>
     </div>
+    <div class="meta-info" id="editMetaInfo"></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" id="closeEdit">Cancel</button>
       <button class="btn btn-primary" id="saveEdit">Save Changes</button>
@@ -530,751 +363,605 @@
   </div>
 </div>
 
-<!-- Google APIs -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js"></script>
-
 <script>
-(function(){
-  "use strict";
+// ==========================================
+// 1. STATE & CONSTANTS
+// ==========================================
+"use strict";
 
-  const STORAGE_KEY = 'vaultkey_accounts_v1';
-  const BACKUP_META_KEY = 'vaultkey_backup_meta';
-  const PERIOD = 30;
-  const RADIUS = 22;
-  const CIRC = 2 * Math.PI * RADIUS;
-  const AVATAR_COLORS = ['#7b6ef6','#3ed6b5','#f5a623','#ff5d6c','#5aa9ff','#c66ef6'];
-  const MS_PER_DAY = 1000 * 60 * 60 * 24;
+const STORAGE_KEY = 'vaultkey_accounts_v1';
+const BACKUP_META_KEY = 'vaultkey_backup_meta';
+const PERIOD = 30;
+const RADIUS = 22;
+const CIRC = 2 * Math.PI * RADIUS;
+const AVATAR_COLORS = ['#7b6ef6','#3ed6b5','#f5a623','#ff5d6c','#5aa9ff','#c66ef6'];
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+const CLIENT_ID = '1031078395082-bcda093r3dnj6skso43gtrtnid1aslqs.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
 
-  const els = {
-    addPanel: document.getElementById('addPanel'),
-    addPanelHead: document.getElementById('addPanelHead'),
-    nameField: document.getElementById('nameField'),
-    secretField: document.getElementById('secretField'),
-    accName: document.getElementById('accName'),
-    accSecret: document.getElementById('accSecret'),
-    accTags: document.getElementById('accTags'),
-    addBtn: document.getElementById('addBtn'),
-    searchWrap: document.getElementById('searchWrap'),
-    searchInput: document.getElementById('searchInput'),
-    toolbar: document.getElementById('toolbar'),
-    accountCount: document.getElementById('accountCount'),
-    accountsList: document.getElementById('accountsList'),
-    emptyState: document.getElementById('emptyState'),
-    emptyTitle: document.getElementById('emptyTitle'),
-    emptyDesc: document.getElementById('emptyDesc'),
-    emptyIcon: document.getElementById('emptyIcon'),
-    toast: document.getElementById('toast'),
-    toastText: document.getElementById('toastText'),
-    exportBtn: document.getElementById('exportBtn'),
-    importBtn: document.getElementById('importBtn'),
-    importFile: document.getElementById('importFile'),
-    confirmOverlay: document.getElementById('confirmOverlay'),
-    confirmDelete: document.getElementById('confirmDelete'),
-    confirmCancel: document.getElementById('confirmCancel'),
-    syncDriveBtn: document.getElementById('syncDriveBtn'),
-    statsBtn: document.getElementById('statsBtn'),
-    statsOverlay: document.getElementById('statsOverlay'),
-    closeStats: document.getElementById('closeStats'),
-    editOverlay: document.getElementById('editOverlay'),
-    editName: document.getElementById('editName'),
-    editSecret: document.getElementById('editSecret'),
-    editTags: document.getElementById('editTags'),
-    closeEdit: document.getElementById('closeEdit'),
-    saveEdit: document.getElementById('saveEdit'),
-    conflictOverlay: document.getElementById('conflictOverlay'),
-    conflictText: document.getElementById('conflictText'),
-    conflictMerge: document.getElementById('conflictMerge'),
-    conflictLocal: document.getElementById('conflictLocal'),
-    conflictCloud: document.getElementById('conflictCloud'),
-  };
+const els = {
+  addPanel: document.getElementById('addPanel'), addPanelHead: document.getElementById('addPanelHead'),
+  nameField: document.getElementById('nameField'), secretField: document.getElementById('secretField'),
+  accName: document.getElementById('accName'), accSecret: document.getElementById('accSecret'),
+  accTags: document.getElementById('accTags'), addBtn: document.getElementById('addBtn'),
+  searchWrap: document.getElementById('searchWrap'), searchInput: document.getElementById('searchInput'),
+  toolbar: document.getElementById('toolbar'), sortSelect: document.getElementById('sortSelect'),
+  accountCount: document.getElementById('accountCount'), accountsList: document.getElementById('accountsList'),
+  emptyState: document.getElementById('emptyState'), emptyTitle: document.getElementById('emptyTitle'),
+  emptyDesc: document.getElementById('emptyDesc'), emptyIcon: document.getElementById('emptyIcon'),
+  toast: document.getElementById('toast'), toastText: document.getElementById('toastText'),
+  exportBtn: document.getElementById('exportBtn'), importBtn: document.getElementById('importBtn'),
+  importFile: document.getElementById('importFile'), confirmOverlay: document.getElementById('confirmOverlay'),
+  confirmDelete: document.getElementById('confirmDelete'), confirmCancel: document.getElementById('confirmCancel'),
+  syncDriveBtn: document.getElementById('syncDriveBtn'), statsBtn: document.getElementById('statsBtn'),
+  statsOverlay: document.getElementById('statsOverlay'), closeStats: document.getElementById('closeStats'),
+  editOverlay: document.getElementById('editOverlay'), editName: document.getElementById('editName'),
+  editSecret: document.getElementById('editSecret'), editTags: document.getElementById('editTags'),
+  editMetaInfo: document.getElementById('editMetaInfo'), closeEdit: document.getElementById('closeEdit'),
+  saveEdit: document.getElementById('saveEdit'), conflictOverlay: document.getElementById('conflictOverlay'),
+  conflictText: document.getElementById('conflictText'), conflictMerge: document.getElementById('conflictMerge'),
+  conflictLocal: document.getElementById('conflictLocal'), conflictCloud: document.getElementById('conflictCloud'),
+  installBtn: document.getElementById('installBtn'), pwaManifest: document.getElementById('pwaManifest')
+};
 
-  let accounts = loadAccounts();
-  let currentView = 'active'; // 'active', 'archived', 'binned'
-  let pendingActionId = null;
-  let pendingActionType = null;
-  let tickHandle = null;
-  let draggedCard = null;
+let accounts = loadAccounts();
+let currentView = 'active'; 
+let pendingActionId = null;
+let pendingActionType = null;
+let editingId = null;
+let draggedCard = null;
+let tokenClient;
+let driveDataCache = null;
+let deferredPrompt;
 
-  // Auto-clean Bin (Feature 6: 180 Days)
-  checkBinExpirations();
+// ==========================================
+// 2. INITIALIZATION & EVENT LISTENERS
+// ==========================================
 
-  // ---------- storage ----------
-  function loadAccounts(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      let parsed = raw ? JSON.parse(raw) : [];
-      // Migration for old structure
-      parsed = parsed.map((a, i) => ({
-        ...a,
-        status: a.status || 'active',
-        tags: a.tags || [],
-        order: a.order !== undefined ? a.order : i
-      }));
-      return parsed.sort((a,b) => a.order - b.order);
-    }catch(e){ return []; }
-  }
-  function saveAccounts(){
-    // re-assign order
-    accounts.forEach((a, i) => a.order = i);
-    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts)); }catch(e){}
-  }
-  
-  function getBackupMeta() {
-    try { return JSON.parse(localStorage.getItem(BACKUP_META_KEY) || '{"date":"Never","size":0}'); }
-    catch(e){ return {date:"Never",size:0}; }
-  }
-  function saveBackupMeta(size) {
-    const meta = { date: 'Today', size: size };
-    localStorage.setItem(BACKUP_META_KEY, JSON.stringify(meta));
-  }
+setupPWA();
+checkBinExpirations();
 
-  // ---------- helpers ----------
-  function cleanSecret(s){ return s.replace(/\s+/g,'').toUpperCase(); }
-  function isValidBase32(s){ return /^[A-Z2-7]+=*$/.test(s) && s.length >= 8; }
-  function isDuplicate(secret, excludeId = null) {
-    return accounts.some(a => a.secret === secret && a.id !== excludeId && a.status !== 'binned');
-  }
-
-  function initialsFor(name){
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    if(parts.length === 0) return '?';
-    if(parts.length === 1) return parts[0].slice(0,2).toUpperCase();
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
-  function uid(){ return 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
-
-  function generateCode(secretRaw){
-    try{
-      const totp = new OTPAuth.TOTP({
-        issuer:'VaultKey', label:'account', algorithm:'SHA1',
-        digits:6, period:PERIOD, secret: OTPAuth.Secret.fromBase32(secretRaw)
-      });
-      return totp.generate();
-    }catch(e){ return null; }
-  }
-
-  // Feature 6: Bin Auto Delete
-  function checkBinExpirations() {
-    const now = Date.now();
-    let changed = false;
-    accounts = accounts.filter(a => {
-      if (a.status === 'binned' && a.deletedAt) {
-        const daysPassed = (now - a.deletedAt) / MS_PER_DAY;
-        if (daysPassed >= 180) { changed = true; return false; }
-      }
-      return true;
-    });
-    if (changed) saveAccounts();
-  }
-
-  // ---------- toast ----------
-  let toastTimer = null;
-  function showToast(text, type = 'success'){ // type: success, danger, warning
-    els.toastText.textContent = text;
-    els.toast.className = 'toast show';
-    if (type !== 'success') els.toast.classList.add(`toast-${type}`);
-    els.toast.querySelector('i').className = type === 'danger' ? 'fas fa-triangle-exclamation' : (type === 'warning' ? 'fas fa-circle-exclamation' : 'fas fa-check-circle');
-    
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(()=> els.toast.classList.remove('show'), 2600);
-  }
-
-  // ---------- UI toggles ----------
-  els.addPanelHead.addEventListener('click', ()=> els.addPanel.classList.toggle('open'));
-
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      e.target.classList.add('active');
-      currentView = e.target.dataset.view;
-      els.searchInput.value = '';
-      render();
-    });
-  });
-
-  // ---------- validation ----------
-  function clearFieldError(field){ field.classList.remove('has-error'); }
-  function setFieldError(field, msg){
-    field.classList.add('has-error');
-    if(msg) field.querySelector('.field-error span').textContent = msg;
-  }
-  els.accName.addEventListener('input', ()=>clearFieldError(els.nameField));
-  els.accSecret.addEventListener('input', ()=>clearFieldError(els.secretField));
-
-  // Add Account (with Feature 3: Duplicate Detector & Feature 2: Tags)
-  function tryAdd(){
-    const name = els.accName.value.trim();
-    const secretClean = cleanSecret(els.accSecret.value);
-    const tags = els.accTags.value.split(',').map(t=>t.trim()).filter(Boolean);
-    let ok = true;
-
-    if(!name){ setFieldError(els.nameField); ok = false; } else { clearFieldError(els.nameField); }
-
-    if(!secretClean){
-      setFieldError(els.secretField, 'Enter a secret key.');
-      ok = false;
-    } else if(!isValidBase32(secretClean)){
-      setFieldError(els.secretField, "That doesn't look like a valid secret key.");
-      ok = false;
-    } else if(generateCode(secretClean) === null){
-      setFieldError(els.secretField, "Couldn't read this secret key.");
-      ok = false;
-    } else if (isDuplicate(secretClean)) {
-      setFieldError(els.secretField, "Duplicate detected: This secret is already in your vault.");
-      ok = false;
-    } else {
-      clearFieldError(els.secretField);
-    }
-
-    if(!ok) return;
-
-    accounts.push({ id: uid(), name, secret: secretClean, tags, status: 'active' });
-    saveAccounts();
-    
-    els.accName.value = ''; els.accSecret.value = ''; els.accTags.value = '';
-    els.addPanel.classList.remove('open');
-    showToast('Account added');
-    
-    // Switch to active view if not already
-    document.querySelector('.tab-btn[data-view="active"]').click();
-    autoSyncIfConnected();
-  }
-
-  els.addBtn.addEventListener('click', tryAdd);
-  [els.accName, els.accSecret, els.accTags].forEach(inp=>{
-    inp.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); tryAdd(); } });
-  });
-
-  // ---------- search ----------
-  els.searchInput.addEventListener('input', render);
-
-  // ---------- Confirmation actions ----------
-  function openConfirm(id, type, name){
-    pendingActionId = id;
-    pendingActionType = type;
-    if(type === 'bin') {
-      document.getElementById('confirmTitle').textContent = 'Move to Bin?';
-      document.getElementById('confirmText').textContent = `"${name}" will be moved to the bin and auto-deleted after 180 days.`;
-      els.confirmDelete.textContent = 'Move to Bin';
-      els.confirmDelete.className = 'btn btn-warning';
-    } else if (type === 'delete') {
-      document.getElementById('confirmTitle').textContent = 'Permanently Delete?';
-      document.getElementById('confirmText').textContent = `"${name}" will be permanently removed. This cannot be undone.`;
-      els.confirmDelete.textContent = 'Delete Forever';
-      els.confirmDelete.className = 'btn btn-danger';
-    }
-    els.confirmOverlay.classList.add('show');
-  }
-  
-  function closeConfirm(){ els.confirmOverlay.classList.remove('show'); pendingActionId = null; }
-  els.confirmCancel.addEventListener('click', closeConfirm);
-  els.confirmOverlay.addEventListener('click', e=>{ if(e.target === els.confirmOverlay) closeConfirm(); });
-  
-  els.confirmDelete.addEventListener('click', ()=>{
-    if(pendingActionId){
-      const accIndex = accounts.findIndex(a=>a.id === pendingActionId);
-      if(accIndex !== -1) {
-        if (pendingActionType === 'bin') {
-          accounts[accIndex].status = 'binned';
-          accounts[accIndex].deletedAt = Date.now();
-          showToast('Moved to bin');
-        } else if (pendingActionType === 'delete') {
-          accounts.splice(accIndex, 1);
-          showToast('Account deleted permanently', 'warning');
-        }
-        saveAccounts();
-        render();
-        autoSyncIfConnected();
-      }
-    }
-    closeConfirm();
-  });
-
-  // ---------- Feature 5: Edit Account ----------
-  let editingId = null;
-  function openEdit(id) {
-    const acc = accounts.find(a => a.id === id);
-    if(!acc) return;
-    editingId = id;
-    els.editName.value = acc.name;
-    els.editSecret.value = acc.secret;
-    els.editTags.value = acc.tags.join(', ');
-    els.editOverlay.classList.add('show');
-  }
-  
-  els.closeEdit.addEventListener('click', () => { els.editOverlay.classList.remove('show'); editingId = null; });
-  els.saveEdit.addEventListener('click', () => {
-    if(!editingId) return;
-    const name = els.editName.value.trim();
-    const secretClean = cleanSecret(els.editSecret.value);
-    const tags = els.editTags.value.split(',').map(t=>t.trim()).filter(Boolean);
-    
-    if(!name || !secretClean || !isValidBase32(secretClean) || isDuplicate(secretClean, editingId)){
-      showToast('Invalid data or duplicate secret', 'danger');
-      return;
-    }
-    
-    const acc = accounts.find(a => a.id === editingId);
-    acc.name = name; acc.secret = secretClean; acc.tags = tags;
-    saveAccounts();
-    els.editOverlay.classList.remove('show');
-    showToast('Changes saved');
+els.addPanelHead.addEventListener('click', ()=> els.addPanel.classList.toggle('open'));
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    currentView = e.target.dataset.view;
+    els.searchInput.value = '';
     render();
-    autoSyncIfConnected();
   });
+});
 
-  // ---------- copy ----------
-  function copyCode(code, btn){
-    const clean = code.replace(/\s+/g,'');
-    const done = ()=>{
-      showToast('Code copied');
-      btn.classList.add('copied');
-      const original = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-check"></i>';
-      setTimeout(()=>{ btn.innerHTML = original; btn.classList.remove('copied'); }, 1500);
-    };
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(clean).then(done).catch(()=>fallbackCopy(clean, done));
-    } else {
-      fallbackCopy(clean, done);
-    }
-  }
-  function fallbackCopy(text, done){
-    const ta = document.createElement('textarea');
-    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.select();
-    try{ document.execCommand('copy'); done(); }catch(e){ showToast('Copy failed', 'danger'); }
-    document.body.removeChild(ta);
-  }
+els.accName.addEventListener('input', ()=>clearFieldError(els.nameField));
+els.accSecret.addEventListener('input', ()=>clearFieldError(els.secretField));
+els.addBtn.addEventListener('click', tryAdd);
+[els.accName, els.accSecret, els.accTags].forEach(inp=>{
+  inp.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); tryAdd(); } });
+});
 
-  // ---------- Feature 1: Stats Modal ----------
-  els.statsBtn.addEventListener('click', () => {
-    const rawData = localStorage.getItem(STORAGE_KEY) || '[]';
-    const kbSize = (new Blob([rawData]).size / 1024).toFixed(2);
-    
-    document.getElementById('statAccounts').textContent = accounts.length;
-    document.getElementById('statSize').textContent = kbSize + ' KB';
-    
-    const meta = getBackupMeta();
-    document.getElementById('statBackupSize').textContent = meta.size + ' KB';
-    document.getElementById('statBackupDate').textContent = meta.date;
+els.searchInput.addEventListener('input', render);
+els.sortSelect.addEventListener('change', render);
 
-    els.statsOverlay.classList.add('show');
-  });
-  els.closeStats.addEventListener('click', () => els.statsOverlay.classList.remove('show'));
+els.confirmCancel.addEventListener('click', closeConfirm);
+els.confirmOverlay.addEventListener('click', e=>{ if(e.target === els.confirmOverlay) closeConfirm(); });
+els.confirmDelete.addEventListener('click', handleConfirmDelete);
 
-  // ---------- export / import ----------
-  els.exportBtn.addEventListener('click', ()=>{
-    if(accounts.length === 0){ showToast('Nothing to export', 'danger'); return; }
-    const blob = new Blob([JSON.stringify(accounts, null, 2)], { type:'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const randomSuffix = Math.floor(10000 + Math.random() * 90000);
-    a.href = url; a.download = `vaultkey-backup-${randomSuffix}.json`;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    saveBackupMeta((blob.size / 1024).toFixed(2));
-    showToast('Backup downloaded');
-  });
+els.closeEdit.addEventListener('click', () => { els.editOverlay.classList.remove('show'); editingId = null; });
+els.saveEdit.addEventListener('click', handleSaveEdit);
 
-  els.importBtn.addEventListener('click', ()=> els.importFile.click());
-  els.importFile.addEventListener('change', e=>{
-    const file = e.target.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = ()=>{
-      try{
-        const parsed = JSON.parse(reader.result);
-        if(!Array.isArray(parsed)) throw new Error('bad format');
-        let added = 0;
-        parsed.forEach(item=>{
-          if(item && item.name && item.secret && isValidBase32(cleanSecret(item.secret))){
-            if (!isDuplicate(cleanSecret(item.secret))) {
-              accounts.push({ 
-                id: uid(), 
-                name: String(item.name), 
-                secret: cleanSecret(item.secret),
-                color: item.color,
-                tags: item.tags || [],
-                status: item.status || 'active',
-                order: accounts.length
-              });
-              added++;
-            }
-          }
+els.statsBtn.addEventListener('click', openAnalytics);
+els.closeStats.addEventListener('click', () => els.statsOverlay.classList.remove('show'));
+
+els.exportBtn.addEventListener('click', handleExport);
+els.importBtn.addEventListener('click', ()=> els.importFile.click());
+els.importFile.addEventListener('change', handleImport);
+
+els.syncDriveBtn.addEventListener('click', handleManualSync);
+els.conflictMerge.addEventListener('click', () => { els.conflictOverlay.classList.remove('show'); executeSync('merge'); });
+els.conflictLocal.addEventListener('click', () => { els.conflictOverlay.classList.remove('show'); executeSync('local'); });
+els.conflictCloud.addEventListener('click', () => { els.conflictOverlay.classList.remove('show'); executeSync('cloud'); });
+
+window.addEventListener('load', function() {
+    if (window.gapi) {
+        gapi.load('client', () => {
+            gapi.client.init({ discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'] })
+            .then(() => initializeGis());
         });
-        saveAccounts();
-        render();
-        showToast(added ? `Imported ${added} new account(s)` : 'No new accounts added', added===0 ? 'warning' : 'success');
-        autoSyncIfConnected();
-      }catch(err){
-        showToast('Could not read that backup file', 'danger');
-      }
-      els.importFile.value = '';
-    };
-    reader.readAsText(file);
+    }
+});
+
+// Start loop
+requestAnimationFrame(tickAll);
+render();
+
+// ==========================================
+// 3. ALL FUNCTION DEFINITIONS
+// ==========================================
+
+function setupPWA() {
+  const manifestJSON = {
+    name: "VaultKey", short_name: "VaultKey", display: "standalone",
+    background_color: "#0a0d20", theme_color: "#0a0d20", start_url: ".",
+    icons: [{ src: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/svgs/solid/shield-halved.svg", sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }]
+  };
+  const manifestBlob = new Blob([JSON.stringify(manifestJSON)], {type: 'application/manifest+json'});
+  els.pwaManifest.href = URL.createObjectURL(manifestBlob);
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    els.installBtn.style.display = 'flex';
   });
-
-  // ---------- Feature 8: Drag and Drop Reordering ----------
-  function handleDragStart(e) {
-    if(els.searchInput.value) return; // Disable drag during search
-    draggedCard = this;
-    setTimeout(() => this.classList.add('dragging'), 0);
-    e.dataTransfer.effectAllowed = 'move';
-  }
-  function handleDragOver(e) {
-    e.preventDefault();
-    if (!draggedCard || this === draggedCard || els.searchInput.value) return;
-    this.classList.add('drag-over');
-  }
-  function handleDragLeave() { this.classList.remove('drag-over'); }
-  function handleDrop(e) {
-    e.preventDefault();
-    this.classList.remove('drag-over');
-    if (!draggedCard || this === draggedCard || els.searchInput.value) return;
-    
-    const allCards = [...els.accountsList.querySelectorAll('.account-card')];
-    const fromIndex = allCards.indexOf(draggedCard);
-    const toIndex = allCards.indexOf(this);
-    
-    // Update DOM order visually
-    if(fromIndex < toIndex) this.after(draggedCard);
-    else this.before(draggedCard);
-
-    // Update Array logic
-    const draggedId = draggedCard.dataset.id;
-    const dropTargetId = this.dataset.id;
-    
-    const fromArrIdx = accounts.findIndex(a => a.id === draggedId);
-    const toArrIdx = accounts.findIndex(a => a.id === dropTargetId);
-    
-    const [moved] = accounts.splice(fromArrIdx, 1);
-    accounts.splice(toArrIdx, 0, moved);
-    
-    saveAccounts();
-  }
-  function handleDragEnd() { this.classList.remove('dragging'); draggedCard = null; }
-
-  // ---------- render ----------
-  function render(){
-    const query = els.searchInput.value.trim().toLowerCase();
-    
-    // Filter by view state
-    let filtered = accounts.filter(a => a.status === currentView);
-    // Feature 9: Total Keys per view
-    const viewCount = filtered.length;
-    
-    if(query) {
-      filtered = filtered.filter(a => a.name.toLowerCase().includes(query) || a.tags.some(t => t.toLowerCase().includes(query)));
-    }
-
-    els.searchWrap.style.display = viewCount ? 'block' : 'none';
-    els.toolbar.style.display = viewCount ? 'flex' : 'none';
-    els.accountCount.textContent = `${viewCount} ${currentView === 'active' ? 'active keys' : currentView + ' accounts'}`;
-    
-    if(viewCount === 0) {
-       els.emptyState.style.display = 'flex';
-       els.emptyTitle.textContent = currentView === 'active' ? 'No accounts yet' : (currentView === 'archived' ? 'Archive is empty' : 'Bin is empty');
-       els.emptyDesc.textContent = currentView === 'active' ? 'Add a secret key above to start.' : '';
-       els.emptyIcon.innerHTML = currentView === 'archived' ? '<i class="fas fa-box-archive"></i>' : (currentView === 'binned' ? '<i class="fas fa-trash"></i>' : '<i class="fas fa-vault"></i>');
-    } else {
-       els.emptyState.style.display = 'none';
-    }
-
-    els.accountsList.innerHTML = '';
-    filtered.forEach(acc=>{
-      els.accountsList.appendChild(buildCard(acc));
-    });
-    tickAll();
-  }
-
-  function buildCard(acc){
-    const card = document.createElement('div');
-    card.className = 'account-card';
-    card.dataset.id = acc.id;
-    
-    // Only draggable in active view and not searching
-    if(currentView === 'active' && !els.searchInput.value) {
-      card.draggable = true;
-      card.addEventListener('dragstart', handleDragStart);
-      card.addEventListener('dragover', handleDragOver);
-      card.addEventListener('dragleave', handleDragLeave);
-      card.addEventListener('drop', handleDrop);
-      card.addEventListener('dragend', handleDragEnd);
-    }
-
-    if (!acc.color) {
-      acc.color = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
-      saveAccounts();
-    }
-
-    let tagsHtml = '';
-    if(acc.tags && acc.tags.length > 0) {
-      tagsHtml = `<div class="tag-list">` + acc.tags.map(t => `<span class="tag-item">#${escapeHtml(t)}</span>`).join('') + `</div>`;
-    }
-
-    let binHtml = '';
-    if (acc.status === 'binned' && acc.deletedAt) {
-        const daysPassed = (Date.now() - acc.deletedAt) / MS_PER_DAY;
-        const daysLeft = Math.max(0, 180 - Math.floor(daysPassed));
-        binHtml = `<div class="bin-countdown">Auto-delete in ${daysLeft}d</div>`;
-    }
-
-    let actionButtons = '';
-    if (currentView === 'active') {
-      actionButtons = `
-        <button class="mini-btn" data-role="copy" title="Copy code"><i class="fas fa-copy"></i></button>
-        <button class="mini-btn" data-role="edit" title="Edit account"><i class="fas fa-pen"></i></button>
-        <button class="mini-btn" data-role="archive" title="Archive"><i class="fas fa-box-archive"></i></button>
-        <button class="mini-btn warning" data-role="bin" title="Move to Bin"><i class="fas fa-trash"></i></button>
-      `;
-    } else if (currentView === 'archived') {
-      actionButtons = `
-        <button class="mini-btn" data-role="unarchive" title="Unarchive"><i class="fas fa-box-open"></i></button>
-        <button class="mini-btn warning" data-role="bin" title="Move to Bin"><i class="fas fa-trash"></i></button>
-      `;
-    } else if (currentView === 'binned') {
-      actionButtons = `
-        <button class="mini-btn" data-role="restore" title="Restore"><i class="fas fa-trash-can-arrow-up"></i></button>
-        <button class="mini-btn delete" data-role="hard-delete" title="Delete Forever"><i class="fas fa-xmark"></i></button>
-      `;
-    }
-
-    card.innerHTML = `
-      <div class="ring-wrap">
-        <svg viewBox="0 0 52 52">
-          <circle class="ring-track" cx="26" cy="26" r="${RADIUS}"></circle>
-          <circle class="ring-fill" cx="26" cy="26" r="${RADIUS}" stroke-dasharray="${CIRC}" stroke-dashoffset="0"></circle>
-        </svg>
-        <div class="ring-avatar" style="background:${acc.color};">${initialsFor(acc.name)}</div>
-      </div>
-      <div class="account-body">
-        <div class="account-name-wrap">
-          <div class="account-name">${escapeHtml(acc.name)}</div>
-          <div class="account-timer" data-role="timer"></div>
-        </div>
-        ${tagsHtml}
-        ${binHtml}
-        <div class="account-code" data-role="code">------</div>
-      </div>
-      <div class="account-actions">${actionButtons}</div>
-    `;
-
-    // Bind specific actions
-    const bindBtn = (role, fn) => {
-      const btn = card.querySelector(`[data-role="${role}"]`);
-      if(btn) btn.addEventListener('click', fn);
-    };
-
-    bindBtn('copy', function(){
-      const codeEl = card.querySelector('[data-role="code"]');
-      if(!codeEl.classList.contains('invalid-text')) copyCode(codeEl.textContent, this);
-    });
-    bindBtn('edit', () => openEdit(acc.id));
-    bindBtn('archive', () => { acc.status = 'archived'; saveAccounts(); render(); showToast('Archived'); });
-    bindBtn('unarchive', () => { acc.status = 'active'; saveAccounts(); render(); showToast('Moved to Main'); });
-    bindBtn('restore', () => { acc.status = 'active'; delete acc.deletedAt; saveAccounts(); render(); showToast('Restored from Bin'); });
-    bindBtn('bin', () => openConfirm(acc.id, 'bin', acc.name));
-    bindBtn('hard-delete', () => openConfirm(acc.id, 'delete', acc.name));
-
-    return card;
-  }
-
-  function escapeHtml(str){
-    const d = document.createElement('div');
-    d.textContent = str;
-    return d.innerHTML;
-  }
-
-  // ---------- tick loop, drift-corrected ----------
-  function tickAll(){
-    const epoch = Math.floor(Date.now() / 1000);
-    const countDown = PERIOD - (epoch % PERIOD);
-    const fraction = countDown / PERIOD;
-    const offset = CIRC * (1 - fraction);
-    const urgent = countDown <= 5;
-
-    document.querySelectorAll('.account-card').forEach(card=>{
-      const acc = accounts.find(a=>a.id === card.dataset.id);
-      if(!acc) return;
-      
-      const codeEl = card.querySelector('[data-role="code"]');
-      const timerEl = card.querySelector('[data-role="timer"]');
-      const ringFill = card.querySelector('.ring-fill');
-      const ringWrap = card.querySelector('.ring-wrap');
-
-      // Obscure code if not in active view
-      if(currentView !== 'active') {
-        codeEl.textContent = '••••••';
-        timerEl.textContent = '';
-        ringFill.style.strokeDashoffset = 0;
-        ringFill.style.stroke = 'var(--border-soft)';
-        return;
-      }
-
-      const code = generateCode(acc.secret);
-      if(code === null){
-        codeEl.textContent = 'Invalid secret key';
-        codeEl.classList.add('invalid-text');
-        card.classList.add('invalid');
-        timerEl.textContent = '';
-      } else {
-        codeEl.textContent = code.slice(0,3) + ' ' + code.slice(3);
-        codeEl.classList.remove('invalid-text');
-        card.classList.remove('invalid');
-        timerEl.textContent = countDown + 's';
-        timerEl.classList.toggle('urgent', urgent);
-      }
-
-      ringFill.style.strokeDashoffset = offset;
-      ringFill.style.stroke = urgent ? 'var(--danger)' : (countDown <= 10 ? 'var(--amber)' : 'var(--mint)');
-      ringWrap.classList.toggle('urgent', urgent);
-    });
-  }
-
-  function scheduleTick(){
-    tickAll();
-    const msToNextSecond = 1000 - (Date.now() % 1000);
-    clearTimeout(tickHandle);
-    tickHandle = setTimeout(()=>{
-      tickAll();
-      tickHandle = setInterval(tickAll, 1000);
-    }, msToNextSecond);
-  }
-
-  // ---------- Google Drive Sync (Feature 4: Conflict Check) ----------
-  const CLIENT_ID = '1031078395082-bcda093r3dnj6skso43gtrtnid1aslqs.apps.googleusercontent.com';
-  const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
-  let tokenClient;
-  let driveDataCache = null;
-
-  function initializeGis() {
-      tokenClient = google.accounts.oauth2.initTokenClient({
-          client_id: CLIENT_ID,
-          scope: SCOPES,
-          callback: async (response) => {
-              if (response.error !== undefined) throw (response);
-              await startSyncProcess();
-          },
+  els.installBtn.addEventListener('click', () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') els.installBtn.style.display = 'none';
+        deferredPrompt = null;
       });
-  }
+    }
+  });
+}
 
-  window.addEventListener('load', function() {
-      if (window.gapi) {
-          gapi.load('client', () => {
-              gapi.client.init({
-                  discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
-              }).then(() => initializeGis());
+function loadAccounts(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    let parsed = raw ? JSON.parse(raw) : [];
+    parsed = parsed.map((a, i) => ({
+      ...a, status: a.status || 'active', tags: a.tags || [], order: a.order !== undefined ? a.order : i,
+      createdAt: a.createdAt || Date.now(), modifiedAt: a.modifiedAt || Date.now(),
+      copyCount: a.copyCount || 0, lastCopied: a.lastCopied || null, pinned: a.pinned || false
+    }));
+    return parsed.sort((a,b) => a.order - b.order);
+  }catch(e){ return []; }
+}
+
+function saveAccounts(){
+  accounts.forEach((a, i) => a.order = i);
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts)); }catch(e){}
+}
+
+function getBackupMeta() {
+  try { return JSON.parse(localStorage.getItem(BACKUP_META_KEY) || '{"date":"Never","size":0}'); }
+  catch(e){ return {date:"Never",size:0}; }
+}
+
+function saveBackupMeta(size) {
+  localStorage.setItem(BACKUP_META_KEY, JSON.stringify({ date: new Date().toLocaleDateString(), size: size }));
+}
+
+function checkBinExpirations() {
+  const now = Date.now(); let changed = false;
+  accounts = accounts.filter(a => {
+    if (a.status === 'binned' && a.deletedAt) {
+      if ((now - a.deletedAt) / MS_PER_DAY >= 180) { changed = true; return false; }
+    }
+    return true;
+  });
+  if (changed) saveAccounts();
+}
+
+function cleanSecret(s){ return s.replace(/\s+/g,'').toUpperCase(); }
+function isValidBase32(s){ return /^[A-Z2-7]+=*$/.test(s) && s.length >= 8; }
+function isDuplicate(secret, excludeId = null) { return accounts.some(a => a.secret === secret && a.id !== excludeId && a.status !== 'binned'); }
+function initialsFor(name){
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if(parts.length === 0) return '?';
+  if(parts.length === 1) return parts[0].slice(0,2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+function uid(){ return 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function generateCode(secretRaw){
+  try{
+    const totp = new OTPAuth.TOTP({ issuer:'VK', label:'acc', algorithm:'SHA1', digits:6, period:PERIOD, secret: OTPAuth.Secret.fromBase32(secretRaw) });
+    return totp.generate();
+  }catch(e){ return null; }
+}
+
+let toastTimer = null;
+function showToast(text, type = 'success'){
+  els.toastText.textContent = text;
+  els.toast.className = 'toast show';
+  if (type !== 'success') els.toast.classList.add(`toast-${type}`);
+  els.toast.querySelector('i').className = type === 'danger' ? 'fas fa-triangle-exclamation' : (type === 'warning' ? 'fas fa-circle-exclamation' : 'fas fa-check-circle');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> els.toast.classList.remove('show'), 2600);
+}
+
+function clearFieldError(field){ field.classList.remove('has-error'); }
+function setFieldError(field, msg){ field.classList.add('has-error'); if(msg) field.querySelector('.field-error span').textContent = msg; }
+
+function tryAdd(){
+  const name = els.accName.value.trim();
+  const secretClean = cleanSecret(els.accSecret.value);
+  const tags = els.accTags.value.split(',').map(t=>t.trim()).filter(Boolean);
+  let ok = true;
+
+  if(!name){ setFieldError(els.nameField); ok = false; } else clearFieldError(els.nameField);
+  if(!secretClean){ setFieldError(els.secretField, 'Enter a secret key.'); ok = false; } 
+  else if(!isValidBase32(secretClean)){ setFieldError(els.secretField, "Invalid Base32 secret key."); ok = false; } 
+  else if(generateCode(secretClean) === null){ setFieldError(els.secretField, "Couldn't read this secret."); ok = false; } 
+  else if (isDuplicate(secretClean)) { setFieldError(els.secretField, "Duplicate detected in vault."); ok = false; } 
+  else clearFieldError(els.secretField);
+
+  if(!ok) return;
+
+  accounts.push({ id: uid(), name, secret: secretClean, tags, status: 'active', createdAt: Date.now(), modifiedAt: Date.now(), copyCount: 0, pinned: false });
+  saveAccounts();
+  els.accName.value = ''; els.accSecret.value = ''; els.accTags.value = '';
+  els.addPanel.classList.remove('open');
+  document.querySelector('.tab-btn[data-view="active"]').click();
+  showToast('Account added');
+  autoSyncIfConnected();
+}
+
+function openConfirm(id, type, name){
+  pendingActionId = id; pendingActionType = type;
+  if(type === 'bin') {
+    document.getElementById('confirmTitle').textContent = 'Move to Bin?';
+    document.getElementById('confirmText').textContent = `"${name}" will be moved to the bin and auto-deleted after 180 days.`;
+    els.confirmDelete.textContent = 'Move to Bin'; els.confirmDelete.className = 'btn btn-warning';
+  } else if (type === 'delete') {
+    document.getElementById('confirmTitle').textContent = 'Permanently Delete?';
+    document.getElementById('confirmText').textContent = `"${name}" will be permanently removed. This cannot be undone.`;
+    els.confirmDelete.textContent = 'Delete Forever'; els.confirmDelete.className = 'btn btn-danger';
+  }
+  els.confirmOverlay.classList.add('show');
+}
+function closeConfirm(){ els.confirmOverlay.classList.remove('show'); pendingActionId = null; }
+function handleConfirmDelete(){
+  if(pendingActionId){
+    const accIndex = accounts.findIndex(a=>a.id === pendingActionId);
+    if(accIndex !== -1) {
+      if (pendingActionType === 'bin') {
+        accounts[accIndex].status = 'binned'; accounts[accIndex].deletedAt = Date.now(); showToast('Moved to bin');
+      } else if (pendingActionType === 'delete') { accounts.splice(accIndex, 1); showToast('Account deleted permanently', 'warning'); }
+      saveAccounts(); render(); autoSyncIfConnected();
+    }
+  }
+  closeConfirm();
+}
+
+function openEdit(id) {
+  const acc = accounts.find(a => a.id === id);
+  if(!acc) return;
+  editingId = id;
+  els.editName.value = acc.name; els.editSecret.value = acc.secret; els.editTags.value = acc.tags.join(', ');
+  
+  const createdStr = new Date(acc.createdAt).toLocaleString();
+  const modifiedStr = new Date(acc.modifiedAt).toLocaleString();
+  const copiedStr = acc.lastCopied ? new Date(acc.lastCopied).toLocaleString() : 'Never';
+  els.editMetaInfo.innerHTML = `Created: <span>${createdStr}</span><br>Modified: <span>${modifiedStr}</span><br>Copied: <span>${acc.copyCount} times</span> (Last: <span>${copiedStr}</span>)`;
+  
+  els.editOverlay.classList.add('show');
+}
+
+function handleSaveEdit(){
+  if(!editingId) return;
+  const name = els.editName.value.trim(); const secretClean = cleanSecret(els.editSecret.value);
+  const tags = els.editTags.value.split(',').map(t=>t.trim()).filter(Boolean);
+  
+  if(!name || !secretClean || !isValidBase32(secretClean) || isDuplicate(secretClean, editingId)){ showToast('Invalid data or duplicate secret', 'danger'); return; }
+  
+  const acc = accounts.find(a => a.id === editingId);
+  acc.name = name; acc.secret = secretClean; acc.tags = tags; acc.modifiedAt = Date.now();
+  saveAccounts(); els.editOverlay.classList.remove('show'); showToast('Changes saved'); render(); autoSyncIfConnected();
+}
+
+function copyCode(code, btn, accId){
+  const clean = code.replace(/\s+/g,'');
+  const done = ()=>{
+    showToast('Code copied');
+    btn.classList.add('copied'); const original = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i>';
+    setTimeout(()=>{ btn.innerHTML = original; btn.classList.remove('copied'); }, 1500);
+    
+    // Update Analytics History
+    const acc = accounts.find(a => a.id === accId);
+    if(acc){ acc.copyCount = (acc.copyCount || 0) + 1; acc.lastCopied = Date.now(); saveAccounts(); }
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(clean).then(done).catch(()=>fallbackCopy(clean, done));
+  else fallbackCopy(clean, done);
+}
+function fallbackCopy(text, done){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); done(); }catch(e){ showToast('Copy failed', 'danger'); }
+  document.body.removeChild(ta);
+}
+
+function openAnalytics() {
+  const rawData = localStorage.getItem(STORAGE_KEY) || '[]';
+  const kbSize = (new Blob([rawData]).size / 1024).toFixed(2);
+  let totalCopies = 0; let mostCopied = null;
+  
+  accounts.forEach(a => {
+    totalCopies += (a.copyCount || 0);
+    if (!mostCopied || (a.copyCount || 0) > (mostCopied.copyCount || 0)) mostCopied = a;
+  });
+  
+  document.getElementById('statAccounts').textContent = accounts.length;
+  document.getElementById('statTotalCopies').textContent = totalCopies;
+  document.getElementById('statSize').textContent = kbSize + ' KB';
+  
+  const meta = getBackupMeta();
+  document.getElementById('statBackupDate').textContent = meta.date;
+  
+  const mostCopiedEl = document.getElementById('mostCopiedText');
+  if (mostCopied && mostCopied.copyCount > 0) {
+    mostCopiedEl.innerHTML = `Most Used: <strong>${escapeHtml(mostCopied.name)}</strong> (${mostCopied.copyCount} copies)`;
+  } else mostCopiedEl.innerHTML = 'No copies made yet.';
+
+  els.statsOverlay.classList.add('show');
+}
+
+function handleExport(){
+  if(accounts.length === 0){ showToast('Nothing to export', 'danger'); return; }
+  const blob = new Blob([JSON.stringify(accounts, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `vaultkey-backup-${Math.floor(10000 + Math.random() * 90000)}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  saveBackupMeta((blob.size / 1024).toFixed(2));
+  showToast('Backup downloaded');
+}
+
+function handleImport(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const parsed = JSON.parse(reader.result);
+      if(!Array.isArray(parsed)) throw new Error('bad format');
+      let added = 0;
+      parsed.forEach(item=>{
+        if(item && item.name && item.secret && isValidBase32(cleanSecret(item.secret)) && !isDuplicate(cleanSecret(item.secret))){
+          accounts.push({ 
+            id: uid(), name: String(item.name), secret: cleanSecret(item.secret), color: item.color, tags: item.tags || [],
+            status: item.status || 'active', order: accounts.length, createdAt: item.createdAt || Date.now(),
+            modifiedAt: item.modifiedAt || Date.now(), copyCount: item.copyCount || 0, pinned: item.pinned || false
           });
-      }
+          added++;
+        }
+      });
+      saveAccounts(); render();
+      showToast(added ? `Imported ${added} new account(s)` : 'No new accounts added', added===0 ? 'warning' : 'success');
+      autoSyncIfConnected();
+    }catch(err){ showToast('Could not read backup', 'danger'); }
+    els.importFile.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// Drag & Drop
+function handleDragStart(e) { if(els.searchInput.value || els.sortSelect.value !== 'custom') return; draggedCard = this; setTimeout(() => this.classList.add('dragging'), 0); e.dataTransfer.effectAllowed = 'move'; }
+function handleDragOver(e) { e.preventDefault(); if (!draggedCard || this === draggedCard || els.searchInput.value || els.sortSelect.value !== 'custom') return; this.classList.add('drag-over'); }
+function handleDragLeave() { this.classList.remove('drag-over'); }
+function handleDrop(e) {
+  e.preventDefault(); this.classList.remove('drag-over');
+  if (!draggedCard || this === draggedCard || els.searchInput.value || els.sortSelect.value !== 'custom') return;
+  
+  const allCards = [...els.accountsList.querySelectorAll('.account-card')];
+  const fromIndex = allCards.indexOf(draggedCard); const toIndex = allCards.indexOf(this);
+  if(fromIndex < toIndex) this.after(draggedCard); else this.before(draggedCard);
+
+  const draggedId = draggedCard.dataset.id; const dropTargetId = this.dataset.id;
+  const fromArrIdx = accounts.findIndex(a => a.id === draggedId); const toArrIdx = accounts.findIndex(a => a.id === dropTargetId);
+  const [moved] = accounts.splice(fromArrIdx, 1); accounts.splice(toArrIdx, 0, moved);
+  saveAccounts(); render();
+}
+function handleDragEnd() { this.classList.remove('dragging'); draggedCard = null; }
+
+function render(){
+  const query = els.searchInput.value.trim().toLowerCase();
+  let filtered = accounts.filter(a => a.status === currentView);
+  
+  if(query) {
+    filtered = filtered.filter(a => a.name.toLowerCase().includes(query) || a.tags.some(t => t.toLowerCase().includes(query)));
+  }
+
+  // Sorting Logic (Pinned always on top)
+  const sortVal = els.sortSelect.value;
+  filtered.sort((a, b) => {
+    if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+    if (sortVal === 'az') return a.name.localeCompare(b.name);
+    if (sortVal === 'newest') return b.createdAt - a.createdAt;
+    if (sortVal === 'copied') return (b.copyCount || 0) - (a.copyCount || 0);
+    return 0; // Default Custom
   });
 
-  els.syncDriveBtn.addEventListener('click', () => {
-      if (typeof google === 'undefined' || !tokenClient) {
-          showToast('Google API not loaded yet', 'danger'); return;
-      }
-      if (gapi.client.getToken() === null) tokenClient.requestAccessToken({prompt: 'consent'});
-      else tokenClient.requestAccessToken({prompt: ''});
+  const viewCount = filtered.length;
+  els.searchWrap.style.display = viewCount || query ? 'block' : 'none';
+  els.toolbar.style.display = viewCount || query ? 'flex' : 'none';
+  els.accountCount.textContent = `${viewCount} ${currentView === 'active' ? 'active keys' : currentView + ' accounts'}`;
+  
+  if(viewCount === 0) {
+     els.emptyState.style.display = 'flex';
+     els.emptyTitle.textContent = currentView === 'active' ? (query ? 'No matches' : 'No accounts yet') : (currentView === 'archived' ? 'Archive is empty' : 'Bin is empty');
+     els.emptyDesc.textContent = currentView === 'active' && !query ? 'Add a secret key above to start.' : '';
+     els.emptyIcon.innerHTML = currentView === 'archived' ? '<i class="fas fa-box-archive"></i>' : (currentView === 'binned' ? '<i class="fas fa-trash"></i>' : '<i class="fas fa-vault"></i>');
+  } else els.emptyState.style.display = 'none';
+
+  els.accountsList.innerHTML = '';
+  filtered.forEach(acc => els.accountsList.appendChild(buildCard(acc)));
+}
+
+function buildCard(acc){
+  const card = document.createElement('div');
+  card.className = `account-card ${acc.pinned ? 'is-pinned' : ''}`;
+  card.dataset.id = acc.id;
+  
+  if(currentView === 'active' && !els.searchInput.value && els.sortSelect.value === 'custom') {
+    card.draggable = true; card.addEventListener('dragstart', handleDragStart);
+    card.addEventListener('dragover', handleDragOver); card.addEventListener('dragleave', handleDragLeave);
+    card.addEventListener('drop', handleDrop); card.addEventListener('dragend', handleDragEnd);
+  }
+
+  if (!acc.color) { acc.color = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)]; saveAccounts(); }
+
+  let tagsHtml = '';
+  if(acc.tags && acc.tags.length > 0) tagsHtml = `<div class="tag-list">` + acc.tags.map(t => `<span class="tag-item">#${escapeHtml(t)}</span>`).join('') + `</div>`;
+
+  let binHtml = '';
+  if (acc.status === 'binned' && acc.deletedAt) {
+      const daysLeft = Math.max(0, 180 - Math.floor((Date.now() - acc.deletedAt) / MS_PER_DAY));
+      binHtml = `<div class="bin-countdown">Auto-delete in ${daysLeft}d</div>`;
+  }
+
+  let actionButtons = '';
+  if (currentView === 'active') {
+    actionButtons = `
+      <button class="mini-btn ${acc.pinned ? 'active-pin' : ''}" data-role="pin" title="Pin Account"><i class="fas fa-thumbtack"></i></button>
+      <button class="mini-btn" data-role="copy" title="Copy code"><i class="fas fa-copy"></i></button>
+      <button class="mini-btn" data-role="edit" title="Edit account"><i class="fas fa-pen"></i></button>
+      <button class="mini-btn" data-role="archive" title="Archive"><i class="fas fa-box-archive"></i></button>
+      <button class="mini-btn warning" data-role="bin" title="Move to Bin"><i class="fas fa-trash"></i></button>
+    `;
+  } else if (currentView === 'archived') {
+    actionButtons = `
+      <button class="mini-btn" data-role="unarchive" title="Unarchive"><i class="fas fa-box-open"></i></button>
+      <button class="mini-btn warning" data-role="bin" title="Move to Bin"><i class="fas fa-trash"></i></button>
+    `;
+  } else if (currentView === 'binned') {
+    actionButtons = `
+      <button class="mini-btn" data-role="restore" title="Restore"><i class="fas fa-trash-can-arrow-up"></i></button>
+      <button class="mini-btn delete" data-role="hard-delete" title="Delete Forever"><i class="fas fa-xmark"></i></button>
+    `;
+  }
+
+  card.innerHTML = `
+    <div class="ring-wrap">
+      <svg viewBox="0 0 52 52">
+        <circle class="ring-track" cx="26" cy="26" r="${RADIUS}"></circle>
+        <circle class="ring-fill" cx="26" cy="26" r="${RADIUS}" stroke-dasharray="${CIRC}" stroke-dashoffset="0"></circle>
+      </svg>
+      <div class="ring-avatar" style="background:${acc.color};">${initialsFor(acc.name)}</div>
+    </div>
+    <div class="account-body">
+      <div class="account-name-wrap">
+        <div class="account-name">${escapeHtml(acc.name)}</div>
+        <div class="account-timer" data-role="timer"></div>
+      </div>
+      ${tagsHtml}
+      ${binHtml}
+      <div class="account-code" data-role="code">------</div>
+    </div>
+    <div class="account-actions">${actionButtons}</div>
+  `;
+
+  // Attach Tag Clicks
+  card.querySelectorAll('.tag-item').forEach(tagEl => {
+    tagEl.addEventListener('click', (e) => {
+      e.stopPropagation(); els.searchInput.value = e.target.textContent.replace('#', ''); render();
+    });
   });
 
-  function autoSyncIfConnected() {
-      if (typeof gapi !== 'undefined' && gapi.client && gapi.client.getToken() !== null) {
-          startSyncProcess(true); // silent auto-sync overrides conflicts by merging usually, but let's keep it safe.
-      }
-  }
+  const bindBtn = (role, fn) => { const btn = card.querySelector(`[data-role="${role}"]`); if(btn) btn.addEventListener('click', fn); };
+  bindBtn('copy', function(){ const codeEl = card.querySelector('[data-role="code"]'); if(!codeEl.classList.contains('invalid-text')) copyCode(codeEl.textContent, this, acc.id); });
+  bindBtn('edit', () => openEdit(acc.id));
+  bindBtn('pin', () => { acc.pinned = !acc.pinned; saveAccounts(); render(); showToast(acc.pinned ? 'Pinned' : 'Unpinned'); });
+  bindBtn('archive', () => { acc.status = 'archived'; saveAccounts(); render(); showToast('Archived'); });
+  bindBtn('unarchive', () => { acc.status = 'active'; saveAccounts(); render(); showToast('Moved to Main'); });
+  bindBtn('restore', () => { acc.status = 'active'; delete acc.deletedAt; saveAccounts(); render(); showToast('Restored from Bin'); });
+  bindBtn('bin', () => openConfirm(acc.id, 'bin', acc.name));
+  bindBtn('hard-delete', () => openConfirm(acc.id, 'delete', acc.name));
 
-  async function startSyncProcess(isAuto = false) {
-      if(!isAuto) showToast('Connecting to Drive...');
-      const accessToken = gapi.client.getToken().access_token;
-      const headers = { 'Authorization': 'Bearer ' + accessToken };
+  return card;
+}
+function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 
-      try {
-          const searchRes = await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name="vaultkey_backup.json"&fields=files(id,modifiedTime)&orderBy=modifiedTime desc', { headers });
-          const searchData = await searchRes.json();
-          const files = searchData.files || [];
+function tickAll(){
+  const now = Date.now();
+  const epoch = Math.floor(now / 1000);
+  const msOffset = now % 1000;
+  
+  // Smooth fractional countdown for fluid animation
+  const countDown = PERIOD - (epoch % PERIOD);
+  const fraction = (countDown * 1000 - msOffset) / (PERIOD * 1000);
+  const offset = CIRC * (1 - fraction);
+  const urgent = countDown <= 5;
 
-          let driveAccounts = [];
-          let fileId = files.length > 0 ? files[0].id : null;
+  document.querySelectorAll('.account-card').forEach(card=>{
+    const acc = accounts.find(a=>a.id === card.dataset.id);
+    if(!acc) return;
+    
+    const codeEl = card.querySelector('[data-role="code"]');
+    const timerEl = card.querySelector('[data-role="timer"]');
+    const ringFill = card.querySelector('.ring-fill');
+    
+    if(currentView !== 'active') {
+      codeEl.textContent = '••••••'; timerEl.textContent = ''; ringFill.style.strokeDashoffset = 0; ringFill.style.stroke = 'var(--border-soft)'; return;
+    }
 
-          if (fileId) {
-              const fileRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { headers });
-              if (fileRes.ok) driveAccounts = await fileRes.json();
-          }
+    const code = generateCode(acc.secret);
+    if(code === null){
+      codeEl.textContent = 'Invalid secret'; codeEl.classList.add('invalid-text'); card.classList.add('invalid'); timerEl.textContent = '';
+    } else {
+      codeEl.textContent = code.slice(0,3) + ' ' + code.slice(3);
+      codeEl.classList.remove('invalid-text'); card.classList.remove('invalid');
+      timerEl.textContent = countDown + 's'; timerEl.classList.toggle('urgent', urgent);
+    }
+    ringFill.style.strokeDashoffset = offset;
+    ringFill.style.stroke = urgent ? 'var(--danger)' : (countDown <= 10 ? 'var(--amber)' : 'var(--mint)');
+  });
+  
+  requestAnimationFrame(tickAll); // Ultra smooth loop
+}
 
-          driveDataCache = { accounts: driveAccounts, fileId: fileId, files: files };
+// Google Drive Sync
+function initializeGis() {
+  tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: SCOPES, callback: async (res) => { if (res.error !== undefined) throw res; await startSyncProcess(); }, });
+}
+function handleManualSync(){
+  if (typeof google === 'undefined' || !tokenClient) { showToast('Google API not loaded yet', 'danger'); return; }
+  if (gapi.client.getToken() === null) tokenClient.requestAccessToken({prompt: 'consent'}); else tokenClient.requestAccessToken({prompt: ''});
+}
+function autoSyncIfConnected() { if (typeof gapi !== 'undefined' && gapi.client && gapi.client.getToken() !== null) startSyncProcess(true); }
 
-          // Conflict detection
-          if (!isAuto && driveAccounts.length > 0 && accounts.length > 0 && driveAccounts.length !== accounts.length) {
-              els.conflictText.innerHTML = `Local: <strong>${accounts.length} accounts</strong><br>Cloud: <strong>${driveAccounts.length} accounts</strong>`;
-              els.conflictOverlay.classList.add('show');
-          } else {
-              executeSync('merge'); // Default silent sync
-          }
-      } catch (error) {
-          showToast('Sync check failed.', 'danger');
-      }
-  }
+async function startSyncProcess(isAuto = false) {
+  if(!isAuto) showToast('Connecting to Drive...');
+  const headers = { 'Authorization': 'Bearer ' + gapi.client.getToken().access_token };
+  try {
+    const searchRes = await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name="vaultkey_backup.json"&fields=files(id,modifiedTime)&orderBy=modifiedTime desc', { headers });
+    const searchData = await searchRes.json(); const files = searchData.files || [];
+    let driveAccounts = []; let fileId = files.length > 0 ? files[0].id : null;
+    if (fileId) { const fileRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { headers }); if (fileRes.ok) driveAccounts = await fileRes.json(); }
+    driveDataCache = { accounts: driveAccounts, fileId: fileId, files: files };
+    if (!isAuto && driveAccounts.length > 0 && accounts.length > 0 && driveAccounts.length !== accounts.length) {
+      els.conflictText.innerHTML = `Local: <strong>${accounts.length} accounts</strong><br>Cloud: <strong>${driveAccounts.length} accounts</strong>`; els.conflictOverlay.classList.add('show');
+    } else executeSync('merge');
+  } catch (error) { showToast('Sync check failed.', 'danger'); }
+}
 
-  // Conflict Resolution Buttons
-  els.conflictMerge.addEventListener('click', () => { els.conflictOverlay.classList.remove('show'); executeSync('merge'); });
-  els.conflictLocal.addEventListener('click', () => { els.conflictOverlay.classList.remove('show'); executeSync('local'); });
-  els.conflictCloud.addEventListener('click', () => { els.conflictOverlay.classList.remove('show'); executeSync('cloud'); });
-
-  async function executeSync(resolution) {
-      if(!driveDataCache) return;
-      const accessToken = gapi.client.getToken().access_token;
-      const headers = { 'Authorization': 'Bearer ' + accessToken };
-      
-      let mergedMap = new Map();
-      
-      if (resolution === 'merge') {
-          driveDataCache.accounts.forEach(acc => { if (acc && acc.secret) mergedMap.set(acc.secret, acc); });
-          accounts.forEach(acc => { if (acc && acc.secret) mergedMap.set(acc.secret, acc); });
-          accounts = Array.from(mergedMap.values());
-      } else if (resolution === 'cloud') {
-          accounts = driveDataCache.accounts;
-      } // If 'local', we just upload current 'accounts'
-
-      saveAccounts();
-      render();
-
-      const blobStr = JSON.stringify(accounts);
-      const fileContent = new Blob([blobStr], {type: 'application/json'});
-      saveBackupMeta((fileContent.size / 1024).toFixed(2)); // Update stats
-
-      try {
-          if (driveDataCache.fileId) {
-              await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveDataCache.fileId}?uploadType=media`, {
-                  method: 'PATCH', headers: headers, body: fileContent
-              });
-              // Clean up duplicates in drive
-              if (driveDataCache.files.length > 1) {
-                  for (let i = 1; i < driveDataCache.files.length; i++) {
-                      fetch(`https://www.googleapis.com/drive/v3/files/${driveDataCache.files[i].id}`, { method: 'DELETE', headers });
-                  }
-              }
-          } else {
-              const metadata = { 'name': 'vaultkey_backup.json', 'parents': ['appDataFolder'] };
-              const form = new FormData();
-              form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
-              form.append('file', fileContent);
-
-              await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-                  method: 'POST', headers: headers, body: form
-              });
-          }
-          showToast('Sync successful!');
-      } catch (err) {
-          showToast('Sync upload failed.', 'danger');
-      }
-  }
-
-  // ---------- init ----------
-  render();
-  scheduleTick();
-})();
+async function executeSync(resolution) {
+  if(!driveDataCache) return;
+  const headers = { 'Authorization': 'Bearer ' + gapi.client.getToken().access_token };
+  let mergedMap = new Map();
+  if (resolution === 'merge') {
+    driveDataCache.accounts.forEach(acc => { if (acc && acc.secret) mergedMap.set(acc.secret, acc); });
+    accounts.forEach(acc => { if (acc && acc.secret) mergedMap.set(acc.secret, acc); });
+    accounts = Array.from(mergedMap.values());
+  } else if (resolution === 'cloud') accounts = driveDataCache.accounts; 
+  
+  saveAccounts(); render();
+  const fileContent = new Blob([JSON.stringify(accounts)], {type: 'application/json'});
+  saveBackupMeta((fileContent.size / 1024).toFixed(2));
+  
+  try {
+    if (driveDataCache.fileId) {
+      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveDataCache.fileId}?uploadType=media`, { method: 'PATCH', headers: headers, body: fileContent });
+      if (driveDataCache.files.length > 1) { for (let i = 1; i < driveDataCache.files.length; i++) fetch(`https://www.googleapis.com/drive/v3/files/${driveDataCache.files[i].id}`, { method: 'DELETE', headers }); }
+    } else {
+      const form = new FormData(); form.append('metadata', new Blob([JSON.stringify({ 'name': 'vaultkey_backup.json', 'parents': ['appDataFolder'] })], {type: 'application/json'})); form.append('file', fileContent);
+      await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', { method: 'POST', headers: headers, body: form });
+    }
+    showToast('Sync successful!');
+  } catch (err) { showToast('Sync upload failed.', 'danger'); }
+}
 </script>
 </body>
 </html>
